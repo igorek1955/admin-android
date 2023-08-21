@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8"?>
+<defaultsMaps>
+    <entry>
+        <key>oauth_client_id</key>
+        <value></value>
+    </entry>
+    <entry>
+        <key>website_link</key>
+        <value>https://orgoazm.ru</value>
+    </entry>
+    <entry>
+        <key>share_url_deeplink</key>
+        <value>https://igorek1955.github.io</value>
+    </entry>
+    <entry>
+        <key>share_url_prefix</key>
+        <value>https://orgoazm.page.link</value>
+    </entry>
+    <entry>
+        <key>support_email</key>
+        <value>orgoazm@gmail.com</value>
+    </entry>
+    <entry>
+        <key>pagination_limit</key>
+        <value>26</value>
+    </entry>
+    <entry>
+        <key>query_limit</key>
+        <value>50</value>
+    </entry>
+    <entry>
+        <key>listings_limit</key>
+        <value>30</value>
+    </entry>
+    <entry>
+        <key>query_attempts</key>
+        <value>2</value>
+    </entry>
+    <entry>
+        <key>recent_qualifier</key>
+        <value>1209600000</value>
+    </entry>
+</defaultsMaps>

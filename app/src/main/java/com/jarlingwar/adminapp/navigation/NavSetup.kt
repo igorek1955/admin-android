@@ -1,0 +1,107 @@
+package com.jarlingwar.adminapp.navigation
+
+import androidx.compose.animation.AnimatedContentScope
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.expandIn
+import androidx.compose.animation.scaleIn
+import androidx.compose.animation.scaleOut
+import androidx.compose.animation.shrinkOut
+import androidx.compose.animation.slideInHorizontally
+import androidx.compose.animation.slideOutHorizontally
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.remember
+import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.ViewModel
+import androidx.navigation.NavBackStackEntry
+import androidx.navigation.NavController
+import androidx.navigation.NavGraphBuilder
+import androidx.navigation.NavHostController
+import androidx.navigation.compose.NavHost
+import androidx.navigation.compose.composable
+import com.jarlingwar.adminapp.ui.common.SplashScreen
+import com.jarlingwar.adminapp.ui.screens.auth.AuthScreen
+import com.jarlingwar.adminapp.ui.screens.listing.ListingScreen
+import com.jarlingwar.adminapp.ui.screens.listing_list.ListingsScreen
+import com.jarlingwar.adminapp.ui.screens.user.UserScreen
+import com.jarlingwar.adminapp.ui.screens.user_list.UsersScreen
+import com.jarlingwar.adminapp.ui.view_models.SharedViewModel
+import kotlinx.coroutines.flow.MutableStateFlow
+
+@Composable
+fun NavSetup(navController: NavHostController, startScreenControl: MutableStateFlow<Boolean?>) {
+    val destination = when (startScreenControl.collectAsState().value) {
+        null -> Destinations.Splash.route
+        true -> Destinations.Auth.route
+        false -> Destinations.PendingListings.route
+    }
+    NavHost(
+        navController = navController,
+        startDestination = destination,
+        enterTransition =  { scaleIn() },
+        exitTransition = { scaleOut() },
+    ) {
+        composable(Destinations.Auth.route) {
+            AuthScreen { navController.navigate(Destinations.PendingListings.route) }
+        }
+        composable(Destinations.Splash.route) {
+            SplashScreen()
+        }
+        composable(Destinations.Users.route) {
+            val sharedViewModel: SharedViewModel = it.sharedViewModel(navController)
+            UsersScreen(sharedViewModel)
+        }
+        composable(Destinations.PublishedListings.route) {
+            val sharedViewModel: SharedViewModel = it.sharedViewModel(navController)
+            ListingsScreen(
+                sharedViewModel = sharedViewModel,
+                isPendingListings = false,
+                onListingTap = { navController.navigate(Destinations.Listing.route) },
+                onNavigate = { route -> navController.navigate(route)}
+            )
+        }
+        composable(Destinations.ListingSearch.route) {
+            val sharedViewModel: SharedViewModel = it.sharedViewModel(navController)
+        }
+        composable(Destinations.UserSearch.route) {
+            val sharedViewModel: SharedViewModel = it.sharedViewModel(navController)
+        }
+        composable(Destinations.PendingListings.route) {
+            val sharedViewModel: SharedViewModel = it.sharedViewModel(navController)
+            ListingsScreen(
+                sharedViewModel = sharedViewModel,
+                isPendingListings = true,
+                onListingTap = { navController.navigate(Destinations.Listing.route) },
+                onNavigate = { route -> navController.navigate(route)}
+            )
+        }
+        animatedRoute(Destinations.Listing.route) {
+            val sharedViewModel: SharedViewModel = it.sharedViewModel(navController)
+            ListingScreen(sharedViewModel) { navController.popBackStack() }
+        }
+        composable(Destinations.User.route) {
+            val sharedViewModel: SharedViewModel = it.sharedViewModel(navController)
+            UserScreen(sharedViewModel) { navController.popBackStack() }
+        }
+    }
+}
+
+private fun NavGraphBuilder.animatedRoute(
+    route: String,
+    content: @Composable AnimatedContentScope.(NavBackStackEntry) -> Unit) {
+    composable(
+        route = route,
+        enterTransition = { scaleIn() },
+        exitTransition = { scaleOut() },
+        content = content
+    )
+}
+
+@Composable
+inline fun <reified T : ViewModel> NavBackStackEntry.sharedViewModel(navController: NavController): T {
+    val navGraphRoute = destination.parent?.route ?: return hiltViewModel()
+    val parentEntry = remember(this) {
+        navController.getBackStackEntry(navGraphRoute)
+    }
+    return hiltViewModel(parentEntry)
+}
