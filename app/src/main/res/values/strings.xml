@@ -116,4 +116,23 @@
     <string name="rejection_third_party">Third party advertisement</string>
     <string name="rejection_spam">Looks like it is spam, if you disagree - contact support</string>
     <string name="rejection_inappropriate">Inappropriate content, please read FAQ or contact support</string>
+    <string name="rejection_other">Другое</string>
+    <string name="approve">Одобрить</string>
+    <string name="reject">Отклонить</string>
+    <string name="block">Заблокировать</string>
+    <string name="contact_info">Информация о связи</string>
+    <string name="description">Описание</string>
+    <string name="views">Просмотры</string>
+    <string name="added_to_favorites">Добавлено в избранное</string>
+    <string name="last_updated">Обновлено</string>
+    <string name="created">Создано</string>
+    <string name="reported">Жалобы</string>
+    <string name="location">Локация</string>
+    <string name="reason">Причина</string>
+    <string name="apply">Применить</string>
+    <string name="cancel">Отменить</string>
+    <string name="action_success">Действие выполнено успешно</string>
+    <string name="delete_listing">Delete listing</string>
+    <string name="block_user">Block user</string>
+    <string name="unpublish_listing">Unpublish</string>
 </resources>

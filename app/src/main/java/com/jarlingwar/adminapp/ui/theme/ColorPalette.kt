@@ -12,19 +12,20 @@ abstract class ColorPalette {
     val dangerPrimary = Color(0xFFFF3F3F)
 
     open val textPrimary = Color(0xFF090909)
-    open val textSecondary = Color(0xFF1C1C1C)
+    open val textSecondary = Color(0xFF6B6969)
     open val textTertiary = Color(0x9A000000)
     open val textAltPrimary = Color(0xFFFFFFFF)
     open val textAltSecondary = Color(0xE9FFFFFF)
     open val fillPrimary = primary
     open val fillSecondary = secondary
-    open val fillAltPrimary = Color(0x1C000000)
+    open val fillAltPrimary = Color(0x8F000000)
     open val fillAltSecondary = Color(0x1C000000)
     open val strokePrimary = Color(0x1C000000)
     open val strokeSecondary = Color(0x14000000)
     open val strokeAltPrimary = Color(0x1CFFFFFF)
     open val strokeAltQuaternary = Color(0x09FFFFFF)
     open val backgroundPrimary = Color(0xFFFFFFFF)
+    open val backgroundTertiary = Color(0x4CFFFFFF)
     open val backgroundSecondary = Color(0xFFF8F8F8)
     open val backgroundAltPrimary = Color(0xFF1C1C1C)
     open val backgroundAltSecondary = Color(0xFF1C1C1C)
@@ -53,7 +54,7 @@ object LightPalette : ColorPalette() {
 
 object DarkPalette : ColorPalette() {
     override val textPrimary = Color(0xFFFFFFFF)
-    override val textSecondary = Color(0xE8FFFFFF)
+    override val textSecondary = Color(0xE8C6BFBF)
     override val textAltPrimary = Color(0xFF1C1C1C)
     override val textAltSecondary = Color(0xFF1C1C1C)
     override val fillAltPrimary = Color(0x09000000)
@@ -64,6 +65,7 @@ object DarkPalette : ColorPalette() {
     override val strokeAltQuaternary = Color(0x07000000)
     override val backgroundPrimary = Color(0xFF1C1C1C)
     override val backgroundSecondary = Color(0xFF252525)
+    override val backgroundTertiary = Color(0x87252222)
     override val backgroundAltPrimary = Color(0xFFFFFFFF)
     override val backgroundAltSecondary = Color(0xFFF8F8F8)
     override val material: Colors

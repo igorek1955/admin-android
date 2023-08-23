@@ -31,9 +31,14 @@ data class ListingModel(
         fun getMock(): ListingModel {
             return ListingModel(
                 title = "Test title",
-                category = "category",
+                category = "service",
                 created = System.currentTimeMillis(),
                 price = 123423,
+                reports = 23,
+                views = 112,
+                reactions = 4,
+                contactInfo = "Fdfas dafadf123 231231 r324fdsaf fd132132fdds 3232",
+                description = "d dsafasfsdf fdasfdas fsadfasfdasf afsddsafdsaf fsdafsdferdew vfafefvs fasdf ewfsfdsvasvdsfasd fewfsadfsdaf afewafdsfadsfawef dsfsafaefsdfas",
                 location = LocationModel(
                     latitude = 0.0,
                     longitude = 0.0,
@@ -52,10 +57,11 @@ enum class ListingStatus(val resId: Int) {
     UNPUBLISHED(R.string.unpublished)
 }
 
-enum class RejectReason(val resId: Int) {
+enum class RejectReason(val resId: Int, var text: String = "") {
     INAPPROPRIATE_CONTENT(R.string.rejection_inappropriate),
     SPAM(R.string.rejection_spam),
     THIRD_PARTY_AD(R.string.rejection_third_party),
-    INACCURATE_DESCRIPTION(R.string.rejection_misleading)
+    INACCURATE_DESCRIPTION(R.string.rejection_misleading),
+    CUSTOM(R.string.rejection_other)
 }
 

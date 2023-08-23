@@ -3,8 +3,12 @@ package com.jarlingwar.adminapp.utils.geo.geohash
 import android.location.Location
 import android.os.Parcel
 import android.os.Parcelable
+import java.util.HashMap
 
 open class GeoHash : Parcelable {
+    private val decodeMap = HashMap<Char, Int>().also {
+        base32.toCharArray().forEachIndexed { index, c -> it[c] = index }
+    }
     private var bits: Long = 0
     private var significantBits: Byte = 0
     var boundingBox: BoundingBox
@@ -19,6 +23,10 @@ open class GeoHash : Parcelable {
         significantBits = parcel.readByte()
         boundingBox = parcel.readParcelable(BoundingBox::class.java.classLoader)!!
     }
+
+    @JvmOverloads
+    constructor(location: Location, charsCount: Int = MAX_CHARACTER_PRECISION) :
+            this(location.latitude, location.longitude, charsCount)
 
     @JvmOverloads
     constructor(lat: Double, lon: Double, charsCount: Int = MAX_CHARACTER_PRECISION) {
@@ -71,6 +79,32 @@ open class GeoHash : Parcelable {
         )
         bits = bits shl (MAX_BIT_PRECISION - this.significantBits)
     }
+
+    constructor(hash: String) {
+        var isEvenBit = true
+        val latRange = doubleArrayOf(-LATITUDE_MAX_ABS, LATITUDE_MAX_ABS)
+        val lonRange = doubleArrayOf(-LONGITUDE_MAX_ABS, LONGITUDE_MAX_ABS)
+
+        for (i in 0 until hash.length) {
+            val cd = decodeMap[hash[i]]
+            for (j in 0 until BASE32_BITS) {
+                val mask = BITS[j]
+                if (isEvenBit) {
+                    divideRangeDecode(lonRange, (cd!!.and(mask)) != 0)
+                } else {
+                    divideRangeDecode(latRange, cd!!.and(mask) != 0)
+                }
+                isEvenBit = !isEvenBit
+            }
+        }
+        boundingBox = BoundingBox(
+            generateLocation(latRange[0], lonRange[0]),
+            generateLocation(latRange[1], lonRange[1])
+        )
+        bits = bits shl (MAX_BIT_PRECISION - significantBits)
+    }
+
+    fun toLocation(): Location = boundingBox.center
 
     fun next(step: Int) = GeoHash((ord + step) shl MAX_BIT_PRECISION - significantBits, significantBits)
 
@@ -187,7 +221,7 @@ open class GeoHash : Parcelable {
         const val LONGITUDE_MAX_ABS = 180.0
 
         val MAX_BIT_PRECISION = java.lang.Long.bitCount(Long.MAX_VALUE) + 1// max - 64;
-
+        val BITS = intArrayOf(16, 8, 4, 2, 1)
         override fun createFromParcel(parcel: Parcel) = GeoHash(parcel)
 
         override fun newArray(size: Int): Array<GeoHash?> = arrayOfNulls(size)

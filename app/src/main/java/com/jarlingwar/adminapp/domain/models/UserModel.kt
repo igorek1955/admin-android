@@ -22,12 +22,31 @@ data class UserModel(
     var lastSessionTime: Long = 0,
     var profileImageUrl: String = "",
     var geoHash: String = "",
-    var interests: ArrayList<String> = arrayListOf(),
-    var favorites: ArrayList<String> = arrayListOf(),
-    var listingsId: ArrayList<String> = arrayListOf(),
+    var interests: List<String> = emptyList(),
+    var favorites: List<String> = emptyList(),
+    var listingsId: List<String> = emptyList(),
     var ratings: List<Float> = emptyList()
 ): Parcelable {
     companion object {
+        fun getMock(): UserModel {
+            return UserModel(
+                userId = "fsdafdsf12332",
+                email = "yandex@test.ru",
+                displayName = "Petr Petrovich",
+                phone = "232322111",
+                about = "my name is pupa and i shave my zalupa",
+                verified = true,
+                created = System.currentTimeMillis() - 1_000_000_000,
+                updated = System.currentTimeMillis() - 1_000_000,
+                lastSessionTime = System.currentTimeMillis(),
+                profileImageUrl = "https://api.dicebear.com/6.x/micah/jpg?size=130&seed=1faff",
+                ratings = listOf(1.2f, 4.2f, 5f, 4f),
+                listingsId = listOf("2","3"),
+                favorites = listOf("432", "421ff"),
+                geoHash = "ucfv0n014x7c",
+                reports = 2323
+            )
+        }
         fun getUserModelFromFirebase(firebaseUser: FirebaseUser): UserModel {
             return UserModel(
                 userId = firebaseUser.uid,

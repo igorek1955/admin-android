@@ -26,6 +26,7 @@ import com.jarlingwar.adminapp.ui.screens.listing_list.ListingsScreen
 import com.jarlingwar.adminapp.ui.screens.user.UserScreen
 import com.jarlingwar.adminapp.ui.screens.user_list.UsersScreen
 import com.jarlingwar.adminapp.ui.view_models.SharedViewModel
+import com.jarlingwar.adminapp.utils.ReportHandler
 import kotlinx.coroutines.flow.MutableStateFlow
 
 @Composable
@@ -77,7 +78,10 @@ fun NavSetup(navController: NavHostController, startScreenControl: MutableStateF
         }
         animatedRoute(Destinations.Listing.route) {
             val sharedViewModel: SharedViewModel = it.sharedViewModel(navController)
-            ListingScreen(sharedViewModel) { navController.popBackStack() }
+            ListingScreen(
+                sharedViewModel = sharedViewModel,
+                onUserTap =  { navController.navigate(Destinations.User.route) },
+                onBackTap = { navController.popBackStack() })
         }
         composable(Destinations.User.route) {
             val sharedViewModel: SharedViewModel = it.sharedViewModel(navController)
@@ -99,7 +103,7 @@ private fun NavGraphBuilder.animatedRoute(
 
 @Composable
 inline fun <reified T : ViewModel> NavBackStackEntry.sharedViewModel(navController: NavController): T {
-    val navGraphRoute = destination.parent?.route ?: return hiltViewModel()
+    val navGraphRoute = Destinations.PendingListings.route
     val parentEntry = remember(this) {
         navController.getBackStackEntry(navGraphRoute)
     }

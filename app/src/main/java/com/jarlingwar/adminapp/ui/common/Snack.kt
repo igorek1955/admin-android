@@ -36,6 +36,7 @@ import com.jarlingwar.adminapp.ui.theme.AdminAppTheme
 import com.jarlingwar.adminapp.ui.theme.Type
 import com.jarlingwar.adminapp.ui.theme.adminColors
 import com.jarlingwar.adminapp.ui.theme.paddingPrimaryStartEnd
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
 
@@ -46,27 +47,25 @@ fun MySnack(hostState: SnackbarHostState) {
             hostState = hostState,
             modifier = Modifier.align(Alignment.BottomCenter),
             snackbar = { data ->
-                Card(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .clickable { hostState.currentSnackbarData?.dismiss() }
-                        .paddingPrimaryStartEnd(),
-                    backgroundColor = MaterialTheme.adminColors.primary,
-                    shape = RoundedCornerShape(8.dp)
-                ) {
-                    Row(
-                        Modifier
-                            .fillMaxWidth()
-                            .padding(10.dp),
-                        horizontalArrangement = Arrangement.Start,
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        AnimatedImage(resId = R.raw.anim_swing, 40.dp)
-                        Spacer(Modifier.width(5.dp))
-                        Text(text = data.message, style = Type.Subtitle2)
-                    }
+                MySnackBody(text = data.message) {
+                    hostState.currentSnackbarData?.dismiss()
                 }
             })
+    }
+}
+
+@Composable
+fun MySnack(text: String, onDismiss: () -> Unit) {
+    Box(
+        modifier = Modifier
+            .fillMaxSize(),
+        contentAlignment = Alignment.BottomCenter
+    ) {
+        MySnackBody(text = text, onDismiss)
+    }
+    LaunchedEffect(text) {
+        delay(3000)
+        onDismiss()
     }
 }
 
@@ -84,6 +83,30 @@ fun AnimatedImage(resId: Int, size: Dp) {
         progress = progress,
         modifier = Modifier.size(size)
     )
+}
+
+@Composable
+private fun MySnackBody(text: String, onDismiss: () -> Unit) {
+    Card(
+        modifier = Modifier
+            .fillMaxWidth()
+            .clickable { onDismiss() }
+            .paddingPrimaryStartEnd(),
+        backgroundColor = MaterialTheme.adminColors.primary,
+        shape = RoundedCornerShape(8.dp)
+    ) {
+        Row(
+            Modifier
+                .fillMaxWidth()
+                .padding(10.dp),
+            horizontalArrangement = Arrangement.Start,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            AnimatedImage(resId = R.raw.anim_swing, 40.dp)
+            Spacer(Modifier.width(5.dp))
+            Text(text = text, style = Type.Subtitle2)
+        }
+    }
 }
 
 
