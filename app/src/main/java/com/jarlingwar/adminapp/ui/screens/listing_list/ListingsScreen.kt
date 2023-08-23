@@ -145,7 +145,7 @@ fun ListingsScreen(
                                 }
                             }
                         }
-                        if (viewModel.isLoading) {
+                        if (viewModel.isLoading && viewModel.listings.isEmpty()) {
                             LoadingIndicator()
                         }
                     }

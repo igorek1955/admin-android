@@ -30,8 +30,9 @@ import com.jarlingwar.adminapp.ui.theme.adminColors
 
 @Composable
 fun MyInputField(
+    modifier: Modifier = Modifier.fillMaxWidth(),
     textVal: MutableState<String>,
-    label: String,
+    label: String? = null,
     placeholder: String,
     errorText: String = "",
     singleLine: Boolean = true,
@@ -40,21 +41,23 @@ fun MyInputField(
 ) {
     Column {
         OutlinedTextField(
-            modifier = Modifier.fillMaxWidth(),
+            modifier = modifier,
             value = textVal.value,
             singleLine = singleLine,
             isError = errorText.isNotEmpty(),
-            leadingIcon = { startIcon?.let { InputFieldIcon(iconRes = it) } },
-            trailingIcon = {
-                if (isClearEnabled && textVal.value.isNotEmpty()) {
-                    InputFieldIcon(
-                        modifier = Modifier.clickable { textVal.value = "" },
-                        iconRes = R.drawable.ic_clear
-                    )
+            leadingIcon = startIcon?.let { { InputFieldIcon(iconRes = it) } },
+            trailingIcon = if (isClearEnabled) {
+                {
+                    if (textVal.value.isNotEmpty()) {
+                        InputFieldIcon(
+                            modifier = Modifier.clickable { textVal.value = "" },
+                            iconRes = R.drawable.ic_clear
+                        )
+                    }
                 }
-            },
+            } else null,
             onValueChange = { newVal -> textVal.value = newVal },
-            label = { Text(label) },
+            label = label?.let { { Text(text = it) } },
             placeholder = { Text(placeholder) },
             colors = myTextFieldDefaults()
         )

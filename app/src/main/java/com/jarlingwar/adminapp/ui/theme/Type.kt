@@ -71,4 +71,10 @@ object Type {
         fontSize = 12.sp,
         lineHeight = 16.sp
     )
+    val Body3 = TextStyle(
+        fontFamily = ChosenFont,
+        fontWeight = FontWeight.Normal,
+        fontSize = 11.sp,
+        lineHeight = 16.sp
+    )
 }

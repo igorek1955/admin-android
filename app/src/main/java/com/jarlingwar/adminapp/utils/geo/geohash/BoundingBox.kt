@@ -35,6 +35,14 @@ open class BoundingBox(y1: Double, y2: Double, x1: Double, x2: Double) : Parcela
             longitude = maxLon
         }
 
+    val center: Location
+        get() = Location(BoundingBox::javaClass.name).apply {
+            latitude = (minLat + maxLat) / 2
+            longitude = (minLon + maxLon) / 2
+        }
+
+    val geoHash
+        get() = GeoHash(center)
 
     constructor(p1: Location, p2: Location) : this(p1.latitude, p2.latitude, p1.longitude, p2.longitude)
 
@@ -49,6 +57,9 @@ open class BoundingBox(y1: Double, y2: Double, x1: Double, x2: Double) : Parcela
 
     operator fun contains(point: Location) = point.latitude >= minLat && point.longitude >= minLon
             && point.latitude <= maxLat && point.longitude <= maxLon
+
+    fun intersects(other: BoundingBox) = !(other.minLon > maxLon || other.maxLon < minLon
+            || other.minLat > maxLat || other.maxLat < minLat)
 
     override fun toString() = "{topLeft: $topLeft, topRight: $topRight, bottomLeft: $bottomLeft, bottomRight: $bottomRight}"
 
@@ -87,4 +98,6 @@ open class BoundingBox(y1: Double, y2: Double, x1: Double, x2: Double) : Parcela
         override fun createFromParcel(parcel: Parcel) = BoundingBox(parcel)
         override fun newArray(size: Int): Array<BoundingBox?> = arrayOfNulls(size)
     }
+
+
 }

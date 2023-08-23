@@ -10,6 +10,7 @@ class Dimens {
     val primaryStartEnd = 20.dp
     val buttonHeight = 60.dp
     val cornerRadius = 8.dp
+    val appBarHeight = 104.dp
 }
 
 fun Modifier.paddingPrimaryStartEnd() =

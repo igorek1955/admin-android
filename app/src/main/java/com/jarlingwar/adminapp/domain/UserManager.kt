@@ -37,7 +37,7 @@ interface IUserManager {
     suspend fun getUserById(userId: String): UserResponse
     suspend fun updateUserToken(token: String)
     suspend fun logout()
-    suspend fun deleteUser(deleteRemoteData: Boolean)
+    suspend fun deleteUser(userModel: UserModel): Result<Boolean>
 }
 
 @Singleton
@@ -179,21 +179,16 @@ class UserManager @Inject constructor(
     override suspend fun logout() {
         userInfoFlow.value?.let {
             firebaseAuth.signOut()
-            deleteUser(false)
-            firebaseAuth.signInAnonymously()
+            userInfoFlow.value = null
         }
     }
 
-    override suspend fun deleteUser(deleteRemoteData: Boolean) {
-        try {
-            userInfoFlow.value?.let {
-                if (deleteRemoteData) remoteStorage.deleteUser(it)
-           }
-            firebaseAuth.signOut()
-            userInfoFlow.update { null }
-            firebaseAuth.signInAnonymously()
+    override suspend fun deleteUser(userModel: UserModel): Result<Boolean> {
+        return try {
+            remoteStorage.deleteUser(userModel)
         } catch (e: Exception) {
             ReportHandler.reportError(e)
+            Result.failure(e)
         }
     }
 
