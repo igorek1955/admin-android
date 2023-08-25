@@ -48,9 +48,9 @@ fun NavSetup(navController: NavHostController, startScreenControl: MutableStateF
         composable(Destinations.Splash.route) {
             SplashScreen()
         }
-        composable(Destinations.Users.route) {
+        composable(Destinations.Users.route) { it ->
             val sharedViewModel: SharedViewModel = it.sharedViewModel(navController)
-            UsersScreen(sharedViewModel)
+            UsersScreen(sharedViewModel = sharedViewModel) { navController.navigate(it) }
         }
         composable(Destinations.PublishedListings.route) {
             val sharedViewModel: SharedViewModel = it.sharedViewModel(navController)
@@ -60,12 +60,6 @@ fun NavSetup(navController: NavHostController, startScreenControl: MutableStateF
                 onListingTap = { navController.navigate(Destinations.Listing.route) },
                 onNavigate = { route -> navController.navigate(route)}
             )
-        }
-        composable(Destinations.ListingSearch.route) {
-            val sharedViewModel: SharedViewModel = it.sharedViewModel(navController)
-        }
-        composable(Destinations.UserSearch.route) {
-            val sharedViewModel: SharedViewModel = it.sharedViewModel(navController)
         }
         composable(Destinations.PendingListings.route) {
             val sharedViewModel: SharedViewModel = it.sharedViewModel(navController)

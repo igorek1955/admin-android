@@ -6,17 +6,14 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
-import com.jarlingwar.adminapp.domain.ListingManager
 import com.jarlingwar.adminapp.domain.UserManager
-import com.jarlingwar.adminapp.domain.models.ListingModel
-import com.jarlingwar.adminapp.domain.models.ListingsQueryParams
 import com.jarlingwar.adminapp.domain.models.SortOrder
 import com.jarlingwar.adminapp.domain.models.UserModel
+import com.jarlingwar.adminapp.domain.models.UsersSortOrder
 import com.jarlingwar.adminapp.utils.AbstractPager
 import com.jarlingwar.adminapp.utils.CustomError
 import com.jarlingwar.adminapp.utils.Pager
 import com.jarlingwar.adminapp.utils.ReportHandler
-import com.jarlingwar.adminapp.utils.geo.CountryInfo
 import com.jarlingwar.adminapp.utils.toUnknown
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
@@ -24,45 +21,34 @@ import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
-
 @HiltViewModel
-class ListingsViewModel @Inject constructor(
+class UsersViewModel @Inject constructor(
     application: Application,
-    private val listingManager: ListingManager,
     private val userManager: UserManager
 ) : AndroidViewModel(application) {
-
-    var listings by mutableStateOf<List<ListingModel>>(emptyList())
-    val params get() = listingManager.getParams()
-    var isPendingListings = true
+    var users by mutableStateOf<List<UserModel>>(emptyList())
+    val params get() = userManager.getParams()
     var error by mutableStateOf<CustomError?>(null)
     var isLoading by mutableStateOf(false)
     var isLoadingNext by mutableStateOf(false)
     var isRefreshing by mutableStateOf(false)
     var isNoResults by mutableStateOf(false)
     var currentUser by mutableStateOf<UserModel?>(null)
-    private var pager: Pager<ListingModel>? = null
+    private var pager: Pager<UserModel>? = null
 
-    fun init(isPending: Boolean) {
+
+    fun init() {
         isLoading = true
-        isPendingListings = isPending
         startPaging()
         viewModelScope.launch(Dispatchers.IO) {
             userManager.userInfoFlow.collectLatest { currentUser = it }
         }
     }
 
-    fun updateCountry(pos: Int) {
-        CountryInfo.values().getOrNull(pos)?.let { newCountry ->
-            val updatedParams = ListingsQueryParams(country = newCountry)
-            listingManager.updateParams(updatedParams)
-            refresh()
-        }
-    }
-
     fun updateSortOrder(pos: Int) {
-        SortOrder.values().getOrNull(pos)?.let { newOrder ->
-            listingManager.updateParams(order = newOrder)
+        UsersSortOrder.values().getOrNull(pos)?.let { newOrder ->
+            val newParams = params.copy(orderBy = newOrder)
+            userManager.updateParams(newParams)
             refresh()
         }
     }
@@ -76,17 +62,10 @@ class ListingsViewModel @Inject constructor(
         startPaging()
     }
 
-    private fun startPaging() {
-        if (pager == null) {
-            setupPager()
-        }
-        pager?.reload()
-    }
-
     private fun setupPager() {
         pager = Pager(
             scope = viewModelScope,
-            pager = object : AbstractPager<ListingModel>() {
+            pager = object : AbstractPager<UserModel>() {
                 override fun onError(t: Throwable) {
                     ReportHandler.reportError(t)
                     error = t.toUnknown()
@@ -96,20 +75,25 @@ class ListingsViewModel @Inject constructor(
                     isLoadingNext = true
                 }
 
-                override fun onSuccess(result: List<ListingModel?>) {
+                override fun onSuccess(result: List<UserModel?>) {
                     isNoResults = false
                     isLoading = false
                     isLoadingNext = false
                     isRefreshing = false
-                    listings = result.filterNotNull()
+                    users = result.filterNotNull()
                 }
 
                 override fun onNoResults() {
                     isNoResults = true
                 }
-            }, pagingFlow = {
-                if (isPendingListings) listingManager.getPendingListingsPaging(it)
-                else listingManager.getPublishedListingsPaging(it)
-            })
+            }, pagingFlow = { userManager.getUsersPaging(it) })
+    }
+
+
+    private fun startPaging() {
+        if (pager == null) {
+            setupPager()
+        }
+        pager?.reload()
     }
 }

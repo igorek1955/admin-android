@@ -11,12 +11,14 @@ import com.google.firebase.auth.GoogleAuthProvider
 import com.google.firebase.auth.UserProfileChangeRequest
 import com.google.firebase.messaging.FirebaseMessaging
 import com.jarlingwar.adminapp.domain.models.UserModel
+import com.jarlingwar.adminapp.domain.models.UsersQueryParams
 import com.jarlingwar.adminapp.domain.repositories.remote.IUsersRemoteRepository
 import com.jarlingwar.adminapp.domain.repositories.remote.UserResponse
 import com.jarlingwar.adminapp.utils.CustomError
 import com.jarlingwar.adminapp.utils.ReportHandler
 import com.jarlingwar.adminapp.utils.toUnknown
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.tasks.await
@@ -38,6 +40,9 @@ interface IUserManager {
     suspend fun updateUserToken(token: String)
     suspend fun logout()
     suspend fun deleteUser(userModel: UserModel): Result<Boolean>
+    fun getUsersPaging(pagingReference: Flow<Int>) : Flow<List<UserModel>>
+    fun updateParams(params: UsersQueryParams)
+    fun getParams(): UsersQueryParams
 }
 
 @Singleton
@@ -191,6 +196,13 @@ class UserManager @Inject constructor(
             Result.failure(e)
         }
     }
+
+    override fun getUsersPaging(pagingReference: Flow<Int>): Flow<List<UserModel>> {
+        return remoteStorage.getUsersPaging(pagingReference)
+    }
+
+    override fun updateParams(params: UsersQueryParams) { remoteStorage.updateParams(params) }
+    override fun getParams() = remoteStorage.getParams()
 
     suspend fun initData(id: String? = null, user: UserModel? = null) {
         var userModel = user

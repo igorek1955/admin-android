@@ -4,7 +4,7 @@ import android.net.Uri
 import com.google.android.gms.tasks.Task
 import com.google.firebase.storage.FirebaseStorage
 import com.jarlingwar.adminapp.domain.models.ListingModel
-import com.jarlingwar.adminapp.domain.models.QueryParams
+import com.jarlingwar.adminapp.domain.models.ListingsQueryParams
 import com.jarlingwar.adminapp.domain.models.SortOrder
 import com.jarlingwar.adminapp.domain.models.UserModel
 import com.jarlingwar.adminapp.domain.repositories.remote.DeleteListingResponse
@@ -29,8 +29,8 @@ interface IListingManager {
     suspend fun getUserListings(userId : String): Result<List<ListingModel>>
     fun getPublishedListingsPaging(pagingReference: Flow<Int>) : Flow<List<ListingModel?>>
     fun getPendingListingsPaging(pagingReference: Flow<Int>) : Flow<List<ListingModel?>>
-    fun updateParams(params: QueryParams? = null, order: SortOrder? = null)
-    fun getParams(): QueryParams
+    fun updateParams(params: ListingsQueryParams? = null, order: SortOrder? = null)
+    fun getParams(): ListingsQueryParams
 }
 
 @ViewModelScoped
@@ -125,8 +125,8 @@ class ListingManager @Inject constructor(
         = remoteStorage.getPendingListingsPaging(pagingReference)
 
 
-    override fun updateParams(params: QueryParams?, order: SortOrder?) {
-        val updatedParams = params ?: QueryParams()
+    override fun updateParams(params: ListingsQueryParams?, order: SortOrder?) {
+        val updatedParams = params ?: ListingsQueryParams()
         order?.let { updatedParams.orderBy = order }
         params?.let { remoteStorage.updateParams(params) }
         remoteStorage.updateParams(updatedParams)

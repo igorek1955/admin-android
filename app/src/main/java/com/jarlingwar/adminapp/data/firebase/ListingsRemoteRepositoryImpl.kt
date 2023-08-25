@@ -7,8 +7,7 @@ import com.google.firebase.firestore.Query
 import com.google.firebase.firestore.QuerySnapshot
 import com.jarlingwar.adminapp.domain.models.ListingModel
 import com.jarlingwar.adminapp.domain.models.ListingStatus
-import com.jarlingwar.adminapp.domain.models.LocationModel
-import com.jarlingwar.adminapp.domain.models.QueryParams
+import com.jarlingwar.adminapp.domain.models.ListingsQueryParams
 import com.jarlingwar.adminapp.domain.models.SortOrder
 import com.jarlingwar.adminapp.domain.repositories.remote.DeleteListingResponse
 import com.jarlingwar.adminapp.domain.repositories.remote.IListingsRemoteRepository
@@ -29,10 +28,10 @@ import kotlin.coroutines.suspendCoroutine
 class ListingsRemoteRepositoryImpl(private val remoteConfig: RemoteConfig, db: FirebaseFirestore) :
     IListingsRemoteRepository {
     private var listings = db.collection(FirestoreCollections.LISTINGS)
-    private var params: QueryParams = QueryParams()
+    private var params: ListingsQueryParams = ListingsQueryParams()
     private val preferredOrder: SortOrder get() = params.orderBy!!
 
-    override fun updateParams(queryParams: QueryParams) {
+    override fun updateParams(queryParams: ListingsQueryParams) {
         params.update(queryParams)
     }
     override fun getParams() = params

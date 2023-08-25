@@ -32,8 +32,7 @@
     <string name="reported_users">Пользователи</string>
     <string name="reviews">Отзывы о пользователях</string>
     <string name="reports">Жалобы</string>
-    <string name="search_users">Поиск по пользователям</string>
-    <string name="search_listings">Поиск по объявлениям</string>
+    <string name="search">Поиск</string>
 
     <!-- status -->
     <string name="sold">Продано</string>
@@ -135,4 +134,6 @@
     <string name="delete_listing">Delete listing</string>
     <string name="block_user">Block user</string>
     <string name="unpublish_listing">Unpublish</string>
+    <string name="listings">Объявлений</string>
+    <string name="by_update_time">По обновлению</string>
 </resources>

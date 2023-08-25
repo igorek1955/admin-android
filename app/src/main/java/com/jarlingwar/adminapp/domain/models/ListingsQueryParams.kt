@@ -6,11 +6,11 @@ import com.jarlingwar.adminapp.utils.ListingFields
 import com.jarlingwar.adminapp.utils.geo.CountryInfo
 
 
-data class QueryParams(
+data class ListingsQueryParams(
     var country: CountryInfo? = CountryInfo.INTERNATIONAL,
     var orderBy: SortOrder? = SortOrder.CREATED_DESC
 ) {
-    fun update(newParams: QueryParams) {
+    fun update(newParams: ListingsQueryParams) {
         newParams.country?.let { country = it }
         newParams.orderBy?.let { orderBy = it }
     }

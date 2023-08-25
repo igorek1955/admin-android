@@ -23,7 +23,10 @@ object ReviewFields {
 object UserFields {
     const val EMAIL = "email"
     const val UID = "userId"
-    const val ONLINE = "online"
+    const val CREATED = "created"
+    const val UPDATED = "updated"
+    const val REPORTS = "reports"
+
 }
 
 object ListingFields {

@@ -46,15 +46,9 @@ enum class DrawerItem(val titleId: Int, val iconRes: Int, val route: String) {
         R.drawable.ic_published_listings,
         Destinations.PublishedListings.route
     ),
+    Search(R.string.search, R.drawable.ic_search, Destinations.Search.route),
     USERS(R.string.users, R.drawable.ic_users, Destinations.Users.route),
-    REPORTED_USERS(
-        R.string.reported_users,
-        R.drawable.ic_reported_users,
-        Destinations.ReportedUsers.route
-    ),
     REVIEWS(R.string.reviews, R.drawable.ic_pen, Destinations.Reviews.route),
-    SEARCH_USER(R.string.search_users, R.drawable.ic_search_people, Destinations.UserSearch.route),
-    SEARCH_LISTING(R.string.search_listings, R.drawable.ic_search, Destinations.ListingSearch.route)
 }
 
 @Composable
@@ -142,7 +136,9 @@ private fun DrawerBody(selectedItem: DrawerItem, onNavigate: (String) -> Unit) {
         }
         Text(
             text = "ver:${BuildConfig.VERSION_NAME}",
-            modifier = Modifier.align(Alignment.BottomEnd).padding(5.dp),
+            modifier = Modifier
+                .align(Alignment.BottomEnd)
+                .padding(5.dp),
             color = MaterialTheme.adminColors.textSecondary
         )
     }

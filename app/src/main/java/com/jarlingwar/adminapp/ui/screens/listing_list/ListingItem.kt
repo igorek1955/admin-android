@@ -49,7 +49,7 @@ fun ListingItem(listing: ListingModel, onItemClick: (ListingModel) -> Unit) {
             .height(150.dp)
             .fillMaxWidth()) {
             MyImage(
-                modifier = Modifier.size(300.dp),
+                modifier = Modifier.height(300.dp).fillMaxWidth(),
                 imgUrl = listing.remoteImgUrlList.firstOrNull() ?: "",
                 contentScale = ContentScale.Crop,
                 shape = RoundedCornerShape(0.dp)

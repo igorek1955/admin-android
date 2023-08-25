@@ -26,7 +26,7 @@ abstract class ColorPalette {
     open val strokeAltQuaternary = Color(0x09FFFFFF)
     open val backgroundPrimary = Color(0xFFFFFFFF)
     open val backgroundTertiary = Color(0x4CFFFFFF)
-    open val backgroundSecondary = Color(0xFFF8F8F8)
+    open val backgroundSecondary = Color(0xFFF1F1F1)
     open val backgroundAltPrimary = Color(0xFF1C1C1C)
     open val backgroundAltSecondary = Color(0xFF1C1C1C)
 

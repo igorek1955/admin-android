@@ -59,12 +59,12 @@ fun ListingsScreen(
     LaunchedEffect(Unit) {
         viewModel.init(isPendingListings)
     }
-    val currentItem = if (isPendingListings) DrawerItem.PENDING_LISTINGS
+    val currentDestination = if (isPendingListings) DrawerItem.PENDING_LISTINGS
     else DrawerItem.PUBLISHED_LISTINGS
     Scaffold(
         scaffoldState = scaffoldState,
         topBar = {
-            DrawerTopBar(stringResource(id = currentItem.titleId)) {
+            DrawerTopBar(stringResource(id = currentDestination.titleId)) {
                 scope.launch {
                     scaffoldState.drawerState.open()
                 }
@@ -75,7 +75,7 @@ fun ListingsScreen(
             Drawer(
                 email = viewModel.currentUser?.email ?: "",
                 imgUrl = viewModel.currentUser?.profileImageUrl ?: "",
-                selectedItem = currentItem,
+                selectedItem = currentDestination,
                 onNavigate = onNavigate
             )
         },
@@ -122,26 +122,24 @@ fun ListingsScreen(
                                     .zIndex(1f)
                             )
                         }
-                        Column {
-                            LazyVerticalGrid(
-                                columns = GridCells.Fixed(2),
-                                horizontalArrangement = Arrangement.spacedBy(10.dp),
-                                verticalArrangement = Arrangement.spacedBy(10.dp)
-                            ) {
-                                itemsIndexed(
-                                    items = viewModel.listings,
-                                    key = { _, item -> item.listingId }
-                                ) { index, item ->
-                                    ListingItem(listing = item) {
-                                        sharedViewModel?.selectedListing = item
-                                        onListingTap()
-                                    }
-                                    if (index == viewModel.listings.size - 5) viewModel.loadNext()
+                        LazyVerticalGrid(
+                            columns = GridCells.Fixed(2),
+                            horizontalArrangement = Arrangement.spacedBy(10.dp),
+                            verticalArrangement = Arrangement.spacedBy(10.dp)
+                        ) {
+                            itemsIndexed(
+                                items = viewModel.listings,
+                                key = { _, item -> item.listingId }
+                            ) { index, item ->
+                                ListingItem(listing = item) {
+                                    sharedViewModel?.selectedListing = item
+                                    onListingTap()
                                 }
-                                if (viewModel.isLoadingNext) {
-                                    item(span = { GridItemSpan(2) }) {
-                                        LoadingNextIndicator()
-                                    }
+                                if (index == viewModel.listings.size - 5) viewModel.loadNext()
+                            }
+                            if (viewModel.isLoadingNext) {
+                                item(span = { GridItemSpan(2) }) {
+                                    LoadingNextIndicator()
                                 }
                             }
                         }
