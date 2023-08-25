@@ -30,6 +30,7 @@ fun LoadingDialog() {
         Card(
             modifier = Modifier
                 .align(Alignment.Center)
+                .fillMaxWidth()
                 .paddingPrimaryStartEnd(),
             elevation = 5.dp,
             backgroundColor = MaterialTheme.adminColors.backgroundSecondary,

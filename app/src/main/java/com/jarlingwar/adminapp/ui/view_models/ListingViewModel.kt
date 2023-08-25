@@ -33,7 +33,9 @@ class ListingViewModel @Inject constructor(
     var listing by mutableStateOf(ListingModel())
     var listingUser by mutableStateOf<UserModel?>(null)
     var locationName by mutableStateOf("")
-    var success by mutableStateOf(false)
+    var isSuccess by mutableStateOf(false)
+    var isLoading by mutableStateOf(false)
+    var isDeleteSuccess by mutableStateOf(false)
     var error by mutableStateOf<CustomError?>(null)
 
     fun init(listing: ListingModel) {
@@ -52,17 +54,21 @@ class ListingViewModel @Inject constructor(
     }
 
     fun approve() {
-        success = false
+        isLoading = true
         val approvedListing = listing.copy(approved = true)
         viewModelScope.launch(Dispatchers.IO) {
             listingManager.saveListing(approvedListing)
-                .onSuccess { success = true }
+                .onSuccess {
+                    isSuccess = true
+                    isLoading = false
+                    listing = approvedListing
+                }
                 .onFailure { error = it.toUnknown() }
         }
     }
 
     fun reject(reason: RejectReason) {
-        success = false
+        isLoading = true
         val rejectedListing = listing.copy(
             approved = false,
             rejectReason = reason.text,
@@ -70,27 +76,37 @@ class ListingViewModel @Inject constructor(
         )
         viewModelScope.launch(Dispatchers.IO) {
             listingManager.saveListing(rejectedListing)
-                .onSuccess { success = true }
+                .onSuccess {
+                    isSuccess = true
+                    isLoading = false
+                    listing = rejectedListing
+                }
                 .onFailure { error = it.toUnknown() }
         }
     }
 
     fun deleteListing() {
-        success = false
+        isLoading = true
         viewModelScope.launch(Dispatchers.IO) {
             listingManager.deleteListing(listing)
-                .onSuccess { success = true }
+                .onSuccess { isDeleteSuccess = true }
                 .onFailure { error = it.toUnknown() }
         }
     }
 
-    fun deleteAndBlockUser() {
-        success = false
+    fun deleteAllUserData() {
+        isLoading = true
         viewModelScope.launch(Dispatchers.IO) {
-            listingUser?.let { userManager.deleteUser(it).getOrNull() }
-            listingManager.deleteListing(listing)
-                .onSuccess { success = true }
-                .onFailure { error = it.toUnknown() }
+            if (listingUser != null) {
+                listingManager.deleteListings(listingUser!!.listingsId).getOrNull()
+                userManager.deleteUser(listingUser!!)
+                    .onSuccess { isDeleteSuccess = true }
+                    .onFailure { error = it.toUnknown() }
+            } else {
+                listingManager.deleteListing(listing)
+                    .onSuccess { isDeleteSuccess = true }
+                    .onFailure { error = it.toUnknown() }
+            }
         }
     }
 }

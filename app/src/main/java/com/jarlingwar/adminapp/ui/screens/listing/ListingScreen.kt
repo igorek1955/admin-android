@@ -63,6 +63,7 @@ import com.jarlingwar.adminapp.domain.models.UserModel
 import com.jarlingwar.adminapp.domain.models.getCategoryByType
 import com.jarlingwar.adminapp.ui.common.ImageDialog
 import com.jarlingwar.adminapp.ui.common.IndicatorLine
+import com.jarlingwar.adminapp.ui.common.LoadingDialog
 import com.jarlingwar.adminapp.ui.common.MyIcon
 import com.jarlingwar.adminapp.ui.common.MyImage
 import com.jarlingwar.adminapp.ui.common.MyInputField
@@ -185,14 +186,14 @@ fun ListingScreen(
                                 style = Type.Subtitle2
                             )
                         }
-                        DropdownMenuItem(onClick = { viewModel.deleteAndBlockUser() }) {
+                        DropdownMenuItem(onClick = { viewModel.deleteAllUserData() }) {
                             Text(text = stringResource(R.string.block_user), style = Type.Subtitle2)
                         }
                         DropdownMenuItem(onClick = {
                             showRejectDialog = true
                         }) {
                             Text(
-                                text = stringResource(R.string.unpublish_listing),
+                                text = stringResource(R.string.reject),
                                 style = Type.Subtitle2
                             )
                         }
@@ -225,25 +226,26 @@ fun ListingScreen(
                 onUserTap = {
                     sharedViewModel.selectedUser = viewModel.listingUser
                     onUserTap()
-                }) {
-            }
+                },
+                onApprove = { viewModel.approve() })
         })
-    if (showRejectDialog) {
-        RejectDialog(onApply = { viewModel.reject(it) }) { showRejectDialog = false }
-    }
+
     if (showImageDialog) {
         val imgUrl = listing.remoteImgUrlList.getOrNull(pagerState.currentPage)
         ImageDialog(imageUrl = imgUrl) {
             showImageDialog = false
         }
     }
-    if (viewModel.success) {
-        MySnack(stringResource(R.string.action_success)) { viewModel.success = false }
-    }
+
     viewModel.error?.resId?.let { resId ->
         val text = if (resId > 0) stringResource(resId) else viewModel.error?.message ?: ""
         MySnack(text) { viewModel.error = null }
     }
+
+    if (showRejectDialog) RejectDialog(onApply = { viewModel.reject(it) }) { showRejectDialog = false }
+    if (viewModel.isSuccess)  MySnack(stringResource(R.string.action_success)) { viewModel.isSuccess = false }
+    if (viewModel.isDeleteSuccess) onBackTap()
+    if (viewModel.isLoading) LoadingDialog()
 }
 
 @Composable
@@ -355,6 +357,7 @@ private fun ListingBody(
                 .padding(vertical = 10.dp)
                 .height(1.dp)
         )
+
         if (listing.status == ListingStatus.PUBLISHED && !listing.approved) {
             Row(Modifier.fillMaxWidth()) {
                 PrimaryButton(
@@ -372,11 +375,17 @@ private fun ListingBody(
                 ) { onRejectTap() }
             }
         }
-        Text(
-            text = listing.status.name.capitalized(),
-            style = Type.Subtitle2M,
-            modifier = Modifier.padding(vertical = 10.dp)
-        )
+
+        Row(Modifier.padding(vertical = 10.dp)) {
+            Text(
+                text = listing.status.name.capitalized(),
+                style = Type.Subtitle2M
+            )
+            if (listing.status == ListingStatus.REJECTED) {
+                Text(modifier = Modifier.padding(start = 10.dp), text = "${listing.rejectReason}")
+            }
+        }
+
         Divider()
         user?.let {
             UserCard(user, listing, userLocation, onUserTap)
