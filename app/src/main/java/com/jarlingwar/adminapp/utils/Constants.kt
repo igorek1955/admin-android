@@ -7,12 +7,21 @@ object SPTypes {
 object FirestoreCollections {
     const val USERS = "users"
     const val LISTINGS = "listings"
-    const val RATINGS = "ratings"
+    const val BLOCKED_USERS = "blockedUsers"
+    const val CHANNELS = "channels"
+    const val REVIEWS = "reviews"
     const val IMAGES = "images"
     const val REPORTS = "reports"
-    const val REVIEWS = "reviews"
-    const val CHANNELS = "channels"
-    const val MESSAGES = "messages"
+}
+
+object ChatFields {
+    const val USER_A = "userA"
+    const val USER_B = "userB"
+    const val SENDER_ID = "senderId"
+    const val RECEIVER_ID = "receiverId"
+    const val CHANNEL_ID = "channelId"
+    const val MESSAGE_IS_SEEN = "seen"
+    const val MESSAGE_DELETED_BY = "deletedByUser"
 }
 
 object ReviewFields {
@@ -26,7 +35,12 @@ object UserFields {
     const val CREATED = "created"
     const val UPDATED = "updated"
     const val REPORTS = "reports"
+}
 
+object BlockedUserFields {
+    const val EMAIL = "email"
+    const val UID = "userId"
+    const val CREATED = "created"
 }
 
 object ListingFields {

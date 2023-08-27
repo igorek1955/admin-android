@@ -48,6 +48,7 @@ import kotlinx.coroutines.launch
 fun UsersScreen(
     viewModel: UsersViewModel = hiltViewModel(),
     sharedViewModel: SharedViewModel,
+    onNavigateToUser: () -> Unit,
     onNavigate: (String) -> Unit
 ) {
     val scaffoldState = rememberScaffoldState()
@@ -121,6 +122,7 @@ fun UsersScreen(
                             ) { index, item ->
                                 UserItem(user = item) {
                                     sharedViewModel.selectedUser = item
+                                    onNavigateToUser()
                                 }
                                 if (index == viewModel.users.size - 5) viewModel.loadNext()
                             }

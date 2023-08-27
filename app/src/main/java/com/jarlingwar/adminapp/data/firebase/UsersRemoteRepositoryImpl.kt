@@ -2,6 +2,7 @@ package com.jarlingwar.adminapp.data.firebase
 
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
+import com.jarlingwar.adminapp.domain.models.BlockedUser
 import com.jarlingwar.adminapp.domain.models.UserModel
 import com.jarlingwar.adminapp.domain.models.UsersQueryParams
 import com.jarlingwar.adminapp.domain.repositories.remote.DeleteUserResponse
@@ -26,6 +27,7 @@ class UsersRemoteRepositoryImpl(
     firestore: FirebaseFirestore
 ) : IUsersRemoteRepository {
     private val reference = firestore.collection(FirestoreCollections.USERS)
+    private val blockedRef = firestore.collection(FirestoreCollections.BLOCKED_USERS)
     private var params: UsersQueryParams = UsersQueryParams()
     override fun updateParams(queryParams: UsersQueryParams) { params.update(queryParams) }
     override fun getParams() = params
@@ -173,5 +175,41 @@ class UsersRemoteRepositoryImpl(
             .orderBy(params.orderBy.fieldName, params.orderBy.direction)
             .paginate(pagingReference, 50)
             .map { docs -> docs.mapNotNull { it.toObject(UserModel::class.java) } }
+    }
+
+    override suspend fun blockUser(user: BlockedUser): Result<Boolean> {
+        return try {
+            blockedRef
+                .document(user.userId)
+                .set(user)
+                .await()
+            Result.success(true)
+        } catch (e: Exception) {
+            ReportHandler.reportError(e)
+            Result.failure(e)
+        }
+    }
+
+    override suspend fun getBlockStatus(id: String): Result<Boolean> {
+        return try {
+            val user = blockedRef.document(id).get().await().toObject(BlockedUser::class.java)
+            Result.success(user != null)
+        } catch (e: Exception) {
+            ReportHandler.reportError(e)
+            Result.failure(e)
+        }
+    }
+
+    override suspend fun unblockUser(id: String): Result<Boolean> {
+        return try {
+            blockedRef
+                .document(id)
+                .delete()
+                .await()
+            Result.success(true)
+        } catch (e: Exception) {
+            ReportHandler.reportError(e)
+            Result.failure(e)
+        }
     }
 }

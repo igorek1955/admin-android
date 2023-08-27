@@ -1,13 +1,8 @@
 package com.jarlingwar.adminapp.navigation
 
 import androidx.compose.animation.AnimatedContentScope
-import androidx.compose.animation.core.tween
-import androidx.compose.animation.expandIn
 import androidx.compose.animation.scaleIn
 import androidx.compose.animation.scaleOut
-import androidx.compose.animation.shrinkOut
-import androidx.compose.animation.slideInHorizontally
-import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.remember
@@ -26,7 +21,6 @@ import com.jarlingwar.adminapp.ui.screens.listing_list.ListingsScreen
 import com.jarlingwar.adminapp.ui.screens.user.UserScreen
 import com.jarlingwar.adminapp.ui.screens.user_list.UsersScreen
 import com.jarlingwar.adminapp.ui.view_models.SharedViewModel
-import com.jarlingwar.adminapp.utils.ReportHandler
 import kotlinx.coroutines.flow.MutableStateFlow
 
 @Composable
@@ -39,7 +33,7 @@ fun NavSetup(navController: NavHostController, startScreenControl: MutableStateF
     NavHost(
         navController = navController,
         startDestination = destination,
-        enterTransition =  { scaleIn() },
+        enterTransition = { scaleIn() },
         exitTransition = { scaleOut() },
     ) {
         composable(Destinations.Auth.route) {
@@ -50,7 +44,11 @@ fun NavSetup(navController: NavHostController, startScreenControl: MutableStateF
         }
         composable(Destinations.Users.route) { it ->
             val sharedViewModel: SharedViewModel = it.sharedViewModel(navController)
-            UsersScreen(sharedViewModel = sharedViewModel) { navController.navigate(it) }
+            UsersScreen(
+                sharedViewModel = sharedViewModel,
+                onNavigateToUser = { navController.navigate(Destinations.User.route) },
+                onNavigate = { navController.navigate(it) }
+            )
         }
         composable(Destinations.PublishedListings.route) {
             val sharedViewModel: SharedViewModel = it.sharedViewModel(navController)
@@ -58,7 +56,7 @@ fun NavSetup(navController: NavHostController, startScreenControl: MutableStateF
                 sharedViewModel = sharedViewModel,
                 isPendingListings = false,
                 onListingTap = { navController.navigate(Destinations.Listing.route) },
-                onNavigate = { route -> navController.navigate(route)}
+                onNavigate = { route -> navController.navigate(route) }
             )
         }
         composable(Destinations.PendingListings.route) {
@@ -67,26 +65,31 @@ fun NavSetup(navController: NavHostController, startScreenControl: MutableStateF
                 sharedViewModel = sharedViewModel,
                 isPendingListings = true,
                 onListingTap = { navController.navigate(Destinations.Listing.route) },
-                onNavigate = { route -> navController.navigate(route)}
+                onNavigate = { route -> navController.navigate(route) }
             )
         }
         animatedRoute(Destinations.Listing.route) {
             val sharedViewModel: SharedViewModel = it.sharedViewModel(navController)
             ListingScreen(
                 sharedViewModel = sharedViewModel,
-                onUserTap =  { navController.navigate(Destinations.User.route) },
+                onUserTap = { navController.navigate(Destinations.User.route) },
                 onBackTap = { navController.popBackStack() })
         }
         composable(Destinations.User.route) {
             val sharedViewModel: SharedViewModel = it.sharedViewModel(navController)
-            UserScreen(sharedViewModel) { navController.popBackStack() }
+            UserScreen(
+                sharedViewModel = sharedViewModel,
+                onNavToReviews = { navController.navigate(Destinations.UserReviews.route) },
+                onNavToListing = { navController.navigate(Destinations.Listing.route) }
+            ) { navController.popBackStack() }
         }
     }
 }
 
 private fun NavGraphBuilder.animatedRoute(
     route: String,
-    content: @Composable AnimatedContentScope.(NavBackStackEntry) -> Unit) {
+    content: @Composable AnimatedContentScope.(NavBackStackEntry) -> Unit
+) {
     composable(
         route = route,
         enterTransition = { scaleIn() },

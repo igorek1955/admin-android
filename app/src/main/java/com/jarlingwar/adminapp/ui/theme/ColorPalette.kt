@@ -10,6 +10,7 @@ abstract class ColorPalette {
     val secondary = Color(0xFFF78154)
     val tertiary = Color(0xFF7F9873)
     val dangerPrimary = Color(0xFFFF3F3F)
+    val fixedSemiTransparent = Color(0x8B323030)
 
     open val textPrimary = Color(0xFF090909)
     open val textSecondary = Color(0xFF6B6969)

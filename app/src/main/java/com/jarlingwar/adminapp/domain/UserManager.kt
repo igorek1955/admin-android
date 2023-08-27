@@ -10,6 +10,7 @@ import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.GoogleAuthProvider
 import com.google.firebase.auth.UserProfileChangeRequest
 import com.google.firebase.messaging.FirebaseMessaging
+import com.jarlingwar.adminapp.domain.models.BlockedUser
 import com.jarlingwar.adminapp.domain.models.UserModel
 import com.jarlingwar.adminapp.domain.models.UsersQueryParams
 import com.jarlingwar.adminapp.domain.repositories.remote.IUsersRemoteRepository
@@ -40,6 +41,9 @@ interface IUserManager {
     suspend fun updateUserToken(token: String)
     suspend fun logout()
     suspend fun deleteUser(userModel: UserModel): Result<Boolean>
+    suspend fun blockUser(id: String, email: String) : Result<Boolean>
+    suspend fun getBlockStatus(id: String) : Result<Boolean>
+    suspend fun unblockUser(id: String) : Result<Boolean>
     fun getUsersPaging(pagingReference: Flow<Int>) : Flow<List<UserModel>>
     fun updateParams(params: UsersQueryParams)
     fun getParams(): UsersQueryParams
@@ -197,9 +201,13 @@ class UserManager @Inject constructor(
         }
     }
 
-    override fun getUsersPaging(pagingReference: Flow<Int>): Flow<List<UserModel>> {
-        return remoteStorage.getUsersPaging(pagingReference)
+    override suspend fun blockUser(id: String, email: String) : Result<Boolean> {
+        val blockedUser = BlockedUser(id, email, System.currentTimeMillis())
+        return remoteStorage.blockUser(blockedUser)
     }
+    override suspend fun getBlockStatus(id: String) = remoteStorage.getBlockStatus(id)
+    override suspend fun unblockUser(id: String) = remoteStorage.unblockUser(id)
+    override fun getUsersPaging(pagingReference: Flow<Int>) = remoteStorage.getUsersPaging(pagingReference)
 
     override fun updateParams(params: UsersQueryParams) { remoteStorage.updateParams(params) }
     override fun getParams() = remoteStorage.getParams()

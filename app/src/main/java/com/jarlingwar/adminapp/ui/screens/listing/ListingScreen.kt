@@ -79,7 +79,7 @@ import com.jarlingwar.adminapp.ui.view_models.ListingViewModel
 import com.jarlingwar.adminapp.ui.view_models.SharedViewModel
 import com.jarlingwar.adminapp.utils.geo.capitalized
 import com.jarlingwar.adminapp.utils.geo.getCurrency
-import com.jarlingwar.adminapp.utils.getTimeHyphen
+import com.jarlingwar.adminapp.utils.getDateHyphen
 import com.jarlingwar.adminapp.utils.prettyPrint
 import com.jarlingwar.adminapp.utils.round
 import me.onebone.toolbar.CollapsingToolbarScaffold
@@ -459,7 +459,7 @@ private fun ListingBody(
                 style = Type.Body1,
                 color = MaterialTheme.adminColors.textSecondary
             )
-            Text(text = getTimeHyphen(listing.created), style = Type.Body1)
+            Text(text = getDateHyphen(listing.created), style = Type.Body1)
         }
         Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
             Text(
@@ -467,7 +467,7 @@ private fun ListingBody(
                 style = Type.Body1,
                 color = MaterialTheme.adminColors.textSecondary
             )
-            Text(text = getTimeHyphen(listing.updated), style = Type.Body1)
+            Text(text = getDateHyphen(listing.updated), style = Type.Body1)
         }
         Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
             Text(
@@ -508,7 +508,7 @@ private fun ListingBody(
                     painter = painterResource(id = R.drawable.ic_arrow_down),
                     contentDescription = null
                 )
-                Text(text = "Show Raw Data", style = Type.Subtitle2M)
+                Text(text = stringResource(id = R.string.show_raw_data), style = Type.Subtitle2M)
             }
             AnimatedVisibility(
                 visible = showRawData,
@@ -545,8 +545,8 @@ private fun UserCard(
             Text(text = user.email, style = Type.Body1)
             Row(verticalAlignment = Alignment.CenterVertically) {
                 MyIcon(R.drawable.ic_star)
-                val ratingsText = if (user.ratings.isNotEmpty()) "${user.ratings.size}-${
-                    user.ratings.average().round()
+                val ratingsText = if (user.reviews.isNotEmpty()) "${user.reviews.size}-${
+                    user.reviews.average().round()
                 }" else "0"
                 Text(
                     modifier = Modifier.padding(horizontal = 5.dp),
@@ -556,7 +556,7 @@ private fun UserCard(
                 MyIcon(R.drawable.ic_new_user)
                 Text(
                     modifier = Modifier.padding(horizontal = 5.dp),
-                    text = getTimeHyphen(user.created),
+                    text = getDateHyphen(user.created),
                     style = Type.Body2
                 )
                 MyIcon(R.drawable.ic_report)

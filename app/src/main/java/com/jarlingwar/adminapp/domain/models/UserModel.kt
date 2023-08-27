@@ -11,6 +11,7 @@ data class UserModel(
     var phone: String = "",
     var displayName: String = "",
     var about: String = "",
+    var blocked: Boolean = false,
     var verified: Boolean = false,
     var anonymous: Boolean = false,
     var online: Boolean = false,
@@ -25,7 +26,7 @@ data class UserModel(
     var interests: List<String> = emptyList(),
     var favorites: List<String> = emptyList(),
     var listingsId: List<String> = emptyList(),
-    var ratings: List<Float> = emptyList()
+    var reviews: List<Float> = emptyList()
 ): Parcelable {
     companion object {
         fun getMock(): UserModel {
@@ -40,7 +41,7 @@ data class UserModel(
                 updated = System.currentTimeMillis() - 1_000_000,
                 lastSessionTime = System.currentTimeMillis(),
                 profileImageUrl = "https://api.dicebear.com/6.x/micah/jpg?size=130&seed=1faff",
-                ratings = listOf(1.2f, 4.2f, 5f, 4f),
+                reviews = listOf(1.2f, 4.2f, 5f, 4f),
                 listingsId = listOf("2","3"),
                 favorites = listOf("432", "421ff"),
                 geoHash = "ucfv0n014x7c",
@@ -62,3 +63,12 @@ data class UserModel(
         }
     }
 }
+
+
+data class UserViewData(
+    val userModel: UserModel = UserModel(),
+    var locationName: String = "",
+    var ratingsPublished: String = "",
+    var usedLocations: List<String> = emptyList(),
+    var channelsNum: String = ""
+)

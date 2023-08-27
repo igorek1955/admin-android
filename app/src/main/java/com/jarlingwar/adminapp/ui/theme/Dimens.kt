@@ -6,11 +6,13 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.composed
 import androidx.compose.ui.unit.dp
 
+object FixedDimens {
+    val cornerRadius = 10.dp
+}
+
 class Dimens {
     val primaryStartEnd = 20.dp
     val buttonHeight = 60.dp
-    val cornerRadius = 8.dp
-    val appBarHeight = 104.dp
 }
 
 fun Modifier.paddingPrimaryStartEnd() =

@@ -1,5 +1,6 @@
 package com.jarlingwar.adminapp.domain.repositories.remote
 
+import com.jarlingwar.adminapp.domain.models.BlockedUser
 import com.jarlingwar.adminapp.domain.models.UserModel
 import com.jarlingwar.adminapp.domain.models.UsersQueryParams
 import kotlinx.coroutines.flow.Flow
@@ -20,4 +21,7 @@ interface IUsersRemoteRepository {
     suspend fun getAllUsers() : Result<List<UserModel>>
     suspend fun getReportedUsers() : Result<List<UserModel>>
     fun getUsersPaging(pagingReference: Flow<Int>) : Flow<List<UserModel>>
+    suspend fun blockUser(user: BlockedUser) : Result<Boolean>
+    suspend fun getBlockStatus(id: String) : Result<Boolean>
+    suspend fun unblockUser(id: String) : Result<Boolean>
 }

@@ -29,7 +29,7 @@ import com.jarlingwar.adminapp.ui.common.MyImage
 import com.jarlingwar.adminapp.ui.theme.AdminAppTheme
 import com.jarlingwar.adminapp.ui.theme.Type
 import com.jarlingwar.adminapp.ui.theme.adminColors
-import com.jarlingwar.adminapp.utils.getTimeHyphen
+import com.jarlingwar.adminapp.utils.getDateHyphen
 import com.jarlingwar.adminapp.utils.round
 
 @Composable
@@ -78,8 +78,8 @@ fun UserItem(user: UserModel, onClick: (UserModel) -> Unit) {
                     )
                     Row {
                         MyIcon(R.drawable.ic_star)
-                        val ratingsText = if (user.ratings.isNotEmpty()) "${user.ratings.size} - ${
-                            user.ratings.average().round()
+                        val ratingsText = if (user.reviews.isNotEmpty()) "${user.reviews.size} - ${
+                            user.reviews.average().round()
                         }" else "0"
                         Text(
                             modifier = Modifier.padding(horizontal = 5.dp),
@@ -103,15 +103,7 @@ fun UserItem(user: UserModel, onClick: (UserModel) -> Unit) {
                     style = Type.Body1,
                     color = MaterialTheme.adminColors.textSecondary
                 )
-                Text(text = getTimeHyphen(user.created), style = Type.Body1)
-            }
-            Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
-                Text(
-                    text = stringResource(id = R.string.listings),
-                    style = Type.Body1,
-                    color = MaterialTheme.adminColors.textSecondary
-                )
-                Text(text = user.listingsId.size.toString(), style = Type.Body1)
+                Text(text = getDateHyphen(user.created), style = Type.Body1)
             }
         }
     }

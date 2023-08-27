@@ -30,7 +30,7 @@ data class ListingModel(
     companion object {
         fun getMock(): ListingModel {
             return ListingModel(
-                title = "Test title",
+                title = "Test title super long title 23 title",
                 category = "service",
                 created = System.currentTimeMillis(),
                 price = 123423,

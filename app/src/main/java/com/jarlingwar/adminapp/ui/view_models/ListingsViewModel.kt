@@ -29,7 +29,7 @@ import javax.inject.Inject
 class ListingsViewModel @Inject constructor(
     application: Application,
     private val listingManager: ListingManager,
-    private val userManager: UserManager
+    private val userManager: UserManager,
 ) : AndroidViewModel(application) {
 
     var listings by mutableStateOf<List<ListingModel>>(emptyList())

@@ -19,6 +19,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.jarlingwar.adminapp.R
+import com.jarlingwar.adminapp.ui.theme.FixedDimens
 import com.jarlingwar.adminapp.ui.theme.Type
 import com.jarlingwar.adminapp.ui.theme.adminColors
 import com.jarlingwar.adminapp.ui.theme.adminDimens
@@ -34,7 +35,7 @@ fun LoadingDialog() {
                 .paddingPrimaryStartEnd(),
             elevation = 5.dp,
             backgroundColor = MaterialTheme.adminColors.backgroundSecondary,
-            shape = RoundedCornerShape(MaterialTheme.adminDimens.cornerRadius)
+            shape = RoundedCornerShape(FixedDimens.cornerRadius)
         ) {
             Row(
                 Modifier.padding(start = 10.dp, end = 30.dp, top = 10.dp, bottom = 10.dp),

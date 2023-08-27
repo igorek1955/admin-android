@@ -63,7 +63,10 @@ class ListingViewModel @Inject constructor(
                     isLoading = false
                     listing = approvedListing
                 }
-                .onFailure { error = it.toUnknown() }
+                .onFailure {
+                    isLoading = false
+                    error = it.toUnknown()
+                }
         }
     }
 
@@ -81,7 +84,10 @@ class ListingViewModel @Inject constructor(
                     isLoading = false
                     listing = rejectedListing
                 }
-                .onFailure { error = it.toUnknown() }
+                .onFailure {
+                    isLoading = false
+                    error = it.toUnknown()
+                }
         }
     }
 
