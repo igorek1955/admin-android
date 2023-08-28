@@ -13,7 +13,7 @@ import com.google.firebase.messaging.FirebaseMessaging
 import com.jarlingwar.adminapp.domain.models.BlockedUser
 import com.jarlingwar.adminapp.domain.models.UserModel
 import com.jarlingwar.adminapp.domain.models.UsersQueryParams
-import com.jarlingwar.adminapp.domain.repositories.remote.IUsersRemoteRepository
+import com.jarlingwar.adminapp.domain.repositories.remote.IUsersRepository
 import com.jarlingwar.adminapp.domain.repositories.remote.UserResponse
 import com.jarlingwar.adminapp.utils.CustomError
 import com.jarlingwar.adminapp.utils.ReportHandler
@@ -51,7 +51,7 @@ interface IUserManager {
 
 @Singleton
 class UserManager @Inject constructor(
-    private val remoteStorage: IUsersRemoteRepository,
+    private val remoteStorage: IUsersRepository,
     private val firebaseAuth: FirebaseAuth
 ) : IUserManager {
     var userInfoFlow: MutableStateFlow<UserModel?> = MutableStateFlow(null)

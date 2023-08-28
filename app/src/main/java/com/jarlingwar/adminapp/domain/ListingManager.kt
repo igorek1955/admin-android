@@ -8,7 +8,7 @@ import com.jarlingwar.adminapp.domain.models.ListingsQueryParams
 import com.jarlingwar.adminapp.domain.models.SortOrder
 import com.jarlingwar.adminapp.domain.models.UserModel
 import com.jarlingwar.adminapp.domain.repositories.remote.DeleteListingResponse
-import com.jarlingwar.adminapp.domain.repositories.remote.IListingsRemoteRepository
+import com.jarlingwar.adminapp.domain.repositories.remote.IListingsRepository
 import com.jarlingwar.adminapp.domain.repositories.remote.SaveListingResponse
 import com.jarlingwar.adminapp.utils.CustomError
 import com.jarlingwar.adminapp.utils.ReportHandler
@@ -35,7 +35,7 @@ interface IListingManager {
 
 @ViewModelScoped
 class ListingManager @Inject constructor(
-    private val remoteStorage: IListingsRemoteRepository
+    private val remoteStorage: IListingsRepository
 ) : IListingManager {
     private val imageStorage = FirebaseStorage.getInstance().reference
 

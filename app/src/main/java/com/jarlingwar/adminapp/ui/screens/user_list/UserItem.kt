@@ -36,10 +36,11 @@ import com.jarlingwar.adminapp.utils.round
 fun UserItem(user: UserModel, onClick: (UserModel) -> Unit) {
     Card(
         Modifier
-            .height(120.dp)
+            .padding(vertical = 2.dp)
+            .height(105.dp)
             .clickable { onClick(user) },
         shape = RoundedCornerShape(20.dp),
-        backgroundColor = MaterialTheme.adminColors.backgroundSecondary
+        elevation = 2.dp
     ) {
         Column(Modifier.padding(5.dp)) {
             Row(Modifier.fillMaxWidth()) {
@@ -77,7 +78,7 @@ fun UserItem(user: UserModel, onClick: (UserModel) -> Unit) {
                         maxLines = 1
                     )
                     Row {
-                        MyIcon(R.drawable.ic_star)
+                        MyIcon(R.drawable.ic_filled_star)
                         val ratingsText = if (user.reviews.isNotEmpty()) "${user.reviews.size} - ${
                             user.reviews.average().round()
                         }" else "0"
@@ -113,8 +114,10 @@ fun UserItem(user: UserModel, onClick: (UserModel) -> Unit) {
 @Composable
 private fun UserItemPreview() {
     AdminAppTheme {
-        UserItem(user = UserModel.getMock()) {
+        Box(Modifier.padding(20.dp)) {
+            UserItem(user = UserModel.getMock()) {
 
+            }
         }
     }
 }

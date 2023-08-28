@@ -87,7 +87,7 @@ fun UserScreen(
         ) {
             item { UserCard(user, viewModel.isUserBlocked, onNavToReviews) }
             item { UserDetails(viewModel.userData) }
-            item { UserRaw(user) }
+            item { Text(text = user.prettyPrint()) }
             items(items = viewModel.listings, key = { it.listingId }) { item ->
                 HorizontalListingItem(listing = item) {
                     sharedViewModel.selectedListing = it
@@ -193,11 +193,6 @@ private fun DetailsRow(fieldName: String, fieldValue: String) {
 }
 
 @Composable
-private fun UserRaw(userModel: UserModel) {
-
-}
-
-@Composable
 private fun UserCard(user: UserModel, isBlocked: Boolean, onNavToReviews: () -> Unit) {
     Column(Modifier.padding(top = 10.dp)) {
         Row(Modifier.fillMaxWidth()) {
@@ -249,7 +244,7 @@ private fun UserCard(user: UserModel, isBlocked: Boolean, onNavToReviews: () -> 
                 if (user.reviews.isNotEmpty()) {
                     Button(onClick = { onNavToReviews() }) {
                         Row {
-                            MyIcon(R.drawable.ic_star)
+                            MyIcon(R.drawable.ic_filled_star)
                             val ratingsText =
                                 if (user.reviews.isNotEmpty()) "${user.reviews.size} - ${
                                     user.reviews.average().round()

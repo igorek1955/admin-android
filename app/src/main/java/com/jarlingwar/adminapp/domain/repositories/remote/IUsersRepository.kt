@@ -9,7 +9,7 @@ typealias SaveUserResponse = Result<Boolean>
 typealias DeleteUserResponse = Result<Boolean>
 typealias UserResponse = Result<UserModel?>
 
-interface IUsersRemoteRepository {
+interface IUsersRepository {
     fun updateParams(queryParams: UsersQueryParams)
     fun getParams(): UsersQueryParams
     suspend fun saveUser(userModel: UserModel): SaveUserResponse

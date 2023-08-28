@@ -89,7 +89,8 @@ fun UsersScreen(
                 Row(
                     Modifier
                         .fillMaxWidth()
-                        .padding(bottom = 20.dp)) {
+                        .padding(bottom = 20.dp)
+                ) {
                     DropDownTextMenu(
                         Modifier.weight(0.5f), values = sortOrder, label = stringResource(
                             id = R.string.sorting

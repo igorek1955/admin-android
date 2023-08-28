@@ -10,7 +10,7 @@ import com.jarlingwar.adminapp.domain.models.ListingStatus
 import com.jarlingwar.adminapp.domain.models.ListingsQueryParams
 import com.jarlingwar.adminapp.domain.models.SortOrder
 import com.jarlingwar.adminapp.domain.repositories.remote.DeleteListingResponse
-import com.jarlingwar.adminapp.domain.repositories.remote.IListingsRemoteRepository
+import com.jarlingwar.adminapp.domain.repositories.remote.IListingsRepository
 import com.jarlingwar.adminapp.domain.repositories.remote.SaveListingResponse
 import com.jarlingwar.adminapp.utils.FirestoreCollections
 import com.jarlingwar.adminapp.utils.ListingFields
@@ -25,8 +25,8 @@ import kotlinx.coroutines.tasks.await
 import kotlin.coroutines.resume
 import kotlin.coroutines.suspendCoroutine
 
-class ListingsRemoteRepositoryImpl(private val remoteConfig: RemoteConfig, db: FirebaseFirestore) :
-    IListingsRemoteRepository {
+class ListingsRepositoryImpl(private val remoteConfig: RemoteConfig, db: FirebaseFirestore) :
+    IListingsRepository {
     private var listings = db.collection(FirestoreCollections.LISTINGS)
     private var params: ListingsQueryParams = ListingsQueryParams()
     private val preferredOrder: SortOrder get() = params.orderBy!!

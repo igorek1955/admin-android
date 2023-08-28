@@ -12,7 +12,7 @@ import kotlinx.coroutines.withContext
 import kotlin.coroutines.resume
 import kotlin.coroutines.suspendCoroutine
 
-class ChatRemoteRepositoryImpl(db: FirebaseFirestore) : IChatRepository {
+class ChatRepositoryImpl(db: FirebaseFirestore) : IChatRepository {
     private val channels = db.collection(FirestoreCollections.CHANNELS)
     override suspend fun getChatChannels(userId: String): Result<Int> {
         return withContext(Dispatchers.IO) {

@@ -27,6 +27,8 @@ object ChatFields {
 object ReviewFields {
     const val USER_ID = "userId"
     const val REVIEWER_ID = "reviewerId"
+    const val CREATED = "created"
+    const val APPROVED = "approved"
 }
 
 object UserFields {

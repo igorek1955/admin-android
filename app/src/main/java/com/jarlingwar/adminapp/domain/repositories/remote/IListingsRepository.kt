@@ -7,7 +7,7 @@ import kotlinx.coroutines.flow.Flow
 typealias SaveListingResponse = Result<Boolean>
 typealias DeleteListingResponse = Result<Boolean>
 
-interface IListingsRemoteRepository {
+interface IListingsRepository {
     fun updateParams(queryParams: ListingsQueryParams)
     fun getParams(): ListingsQueryParams
     suspend fun saveListing(listing: ListingModel): SaveListingResponse

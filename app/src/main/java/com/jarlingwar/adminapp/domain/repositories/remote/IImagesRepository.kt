@@ -1,5 +1,5 @@
 package com.jarlingwar.adminapp.domain.repositories.remote
 
-interface IImagesRemoteRepository {
+interface IImagesRepository {
     fun deletePhotos(photos: List<String>)
 }

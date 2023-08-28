@@ -101,8 +101,12 @@ class UserViewModel @Inject constructor(
     fun deleteUserData() {
         isLoading = true
         viewModelScope.launch(Dispatchers.IO) {
-            listingManager.deleteListings(userData.userModel.listingsId).getOrNull()
-            userManager.deleteUser(userData.userModel)
+            val user = userData.userModel
+            val t1 = listingManager.deleteListings(user.listingsId).getOrNull()
+            if (t1 == null) error = CustomError.GeneralError.Unknown(message = "Unable to delete listings")
+            val t2 = reviewRepo.deleteUserReviews(user.userId).getOrNull()
+            if (t2 == null) error = CustomError.GeneralError.Unknown(message = "Unable to delete review")
+            userManager.deleteUser(user)
                 .onSuccess { isDeleteSuccess = true }
                 .onFailure { error = it.toUnknown() }
         }

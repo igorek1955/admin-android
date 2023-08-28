@@ -4,15 +4,21 @@ import com.google.android.gms.tasks.Task
 import com.google.android.gms.tasks.Tasks
 import com.google.firebase.firestore.DocumentSnapshot
 import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.firestore.Query
 import com.google.firebase.firestore.WriteBatch
 import com.jarlingwar.adminapp.domain.models.ReviewModel
+import com.jarlingwar.adminapp.domain.models.SortOrder
+import com.jarlingwar.adminapp.domain.models.UserModel
 import com.jarlingwar.adminapp.domain.repositories.remote.IReviewRepository
 import com.jarlingwar.adminapp.utils.FirestoreCollections
 import com.jarlingwar.adminapp.utils.ReportHandler
 import com.jarlingwar.adminapp.utils.ReviewFields
+import com.jarlingwar.adminapp.utils.paginate
 import com.jarlingwar.adminapp.utils.toUnknown
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.tasks.await
 import kotlinx.coroutines.withContext
 import kotlin.coroutines.resume
@@ -21,6 +27,19 @@ import kotlin.coroutines.suspendCoroutine
 
 class ReviewRepositoryImpl(private val db: FirebaseFirestore) : IReviewRepository {
     private val reviews = db.collection(FirestoreCollections.REVIEWS)
+    override suspend fun updateReview(reviewModel: ReviewModel): Result<Unit> {
+        return withContext(Dispatchers.IO) {
+            try {
+                reviews
+                    .document(reviewModel.id)
+                    .set(reviewModel)
+                    .await()
+                Result.success(Unit)
+            } catch (e: Exception) {
+                Result.failure(e)
+            }
+        }
+    }
 
     override suspend fun getReviewsByUserId(userId: String): Result<List<ReviewModel>> {
         return withContext(Dispatchers.IO) {
@@ -123,5 +142,20 @@ class ReviewRepositoryImpl(private val db: FirebaseFirestore) : IReviewRepositor
                 }
             }
         }
+    }
+
+    override fun getReviewsPaging(pagingReference: Flow<Int>): Flow<List<ReviewModel>> {
+        return reviews
+            .orderBy(ReviewFields.CREATED, Query.Direction.DESCENDING)
+            .paginate(pagingReference, 50)
+            .map { docs -> docs.mapNotNull { it.toObject(ReviewModel::class.java) } }
+    }
+
+    override fun getPendingReviewsPaging(pagingReference: Flow<Int>): Flow<List<ReviewModel>> {
+        return reviews
+            .whereEqualTo(ReviewFields.APPROVED, false)
+            .orderBy(ReviewFields.CREATED, Query.Direction.DESCENDING)
+            .paginate(pagingReference, 50)
+            .map { docs -> docs.mapNotNull { it.toObject(ReviewModel::class.java) } }
     }
 }

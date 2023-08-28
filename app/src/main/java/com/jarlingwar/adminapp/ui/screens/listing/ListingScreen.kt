@@ -544,7 +544,7 @@ private fun UserCard(
             Text(text = user.displayName, style = Type.Body1)
             Text(text = user.email, style = Type.Body1)
             Row(verticalAlignment = Alignment.CenterVertically) {
-                MyIcon(R.drawable.ic_star)
+                MyIcon(R.drawable.ic_filled_star)
                 val ratingsText = if (user.reviews.isNotEmpty()) "${user.reviews.size}-${
                     user.reviews.average().round()
                 }" else "0"

@@ -6,7 +6,7 @@ import com.jarlingwar.adminapp.domain.models.BlockedUser
 import com.jarlingwar.adminapp.domain.models.UserModel
 import com.jarlingwar.adminapp.domain.models.UsersQueryParams
 import com.jarlingwar.adminapp.domain.repositories.remote.DeleteUserResponse
-import com.jarlingwar.adminapp.domain.repositories.remote.IUsersRemoteRepository
+import com.jarlingwar.adminapp.domain.repositories.remote.IUsersRepository
 import com.jarlingwar.adminapp.domain.repositories.remote.SaveUserResponse
 import com.jarlingwar.adminapp.domain.repositories.remote.UserResponse
 import com.jarlingwar.adminapp.utils.CustomError
@@ -22,10 +22,10 @@ import kotlin.coroutines.resume
 import kotlin.coroutines.suspendCoroutine
 
 
-class UsersRemoteRepositoryImpl(
+class UsersRepositoryImpl(
     private val firebaseAuth: FirebaseAuth,
     firestore: FirebaseFirestore
-) : IUsersRemoteRepository {
+) : IUsersRepository {
     private val reference = firestore.collection(FirestoreCollections.USERS)
     private val blockedRef = firestore.collection(FirestoreCollections.BLOCKED_USERS)
     private var params: UsersQueryParams = UsersQueryParams()

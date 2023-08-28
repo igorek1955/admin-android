@@ -43,6 +43,7 @@ object Destinations {
         override val title: Int = R.string.users
     }
 
+    
     object Search : Destination {
         override val route: String = "search"
         override val title: Int = 0
