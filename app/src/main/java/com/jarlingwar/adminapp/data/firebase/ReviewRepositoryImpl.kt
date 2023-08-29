@@ -7,8 +7,6 @@ import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.Query
 import com.google.firebase.firestore.WriteBatch
 import com.jarlingwar.adminapp.domain.models.ReviewModel
-import com.jarlingwar.adminapp.domain.models.SortOrder
-import com.jarlingwar.adminapp.domain.models.UserModel
 import com.jarlingwar.adminapp.domain.repositories.remote.IReviewRepository
 import com.jarlingwar.adminapp.utils.FirestoreCollections
 import com.jarlingwar.adminapp.utils.ReportHandler

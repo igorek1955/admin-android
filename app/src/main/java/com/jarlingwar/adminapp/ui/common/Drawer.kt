@@ -1,10 +1,12 @@
 package com.jarlingwar.adminapp.ui.common
 
+import android.annotation.SuppressLint
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
@@ -16,12 +18,14 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.MaterialTheme
+import androidx.compose.material.Scaffold
 import androidx.compose.material.Text
+import androidx.compose.material.rememberScaffoldState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -30,10 +34,12 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.jarlingwar.adminapp.BuildConfig
 import com.jarlingwar.adminapp.R
+import com.jarlingwar.adminapp.domain.models.UserModel
 import com.jarlingwar.adminapp.navigation.Destinations
 import com.jarlingwar.adminapp.ui.theme.AdminAppTheme
 import com.jarlingwar.adminapp.ui.theme.Type
 import com.jarlingwar.adminapp.ui.theme.adminColors
+import kotlinx.coroutines.launch
 
 enum class DrawerItem(val titleId: Int, val iconRes: Int, val route: String) {
     PENDING_LISTINGS(
@@ -142,6 +148,38 @@ private fun DrawerBody(selectedItem: DrawerItem, onNavigate: (String) -> Unit) {
             color = MaterialTheme.adminColors.textSecondary
         )
     }
+}
+
+@SuppressLint("UnusedMaterialScaffoldPaddingParameter")
+@Composable
+fun DrawerScaffold(
+    currentUser: UserModel?,
+    currentDestination: DrawerItem,
+    onNavigate: (String) -> Unit,
+    content: @Composable (PaddingValues) -> Unit
+) {
+    val scaffoldState = rememberScaffoldState()
+    val scope = rememberCoroutineScope()
+    Scaffold(
+        scaffoldState = scaffoldState,
+        topBar = {
+            DrawerTopBar(stringResource(id = currentDestination.titleId)) {
+                scope.launch {
+                    scaffoldState.drawerState.open()
+                }
+            }
+        },
+        drawerGesturesEnabled = scaffoldState.drawerState.isOpen,
+        drawerContent = {
+            Drawer(
+                email = currentUser?.email ?: "",
+                imgUrl = currentUser?.profileImageUrl ?: "",
+                selectedItem = currentDestination,
+                onNavigate = onNavigate
+            )
+        },
+        content = content
+    )
 }
 
 @Composable

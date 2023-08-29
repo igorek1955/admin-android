@@ -18,6 +18,8 @@ import com.jarlingwar.adminapp.ui.common.SplashScreen
 import com.jarlingwar.adminapp.ui.screens.auth.AuthScreen
 import com.jarlingwar.adminapp.ui.screens.listing.ListingScreen
 import com.jarlingwar.adminapp.ui.screens.listing_list.ListingsScreen
+import com.jarlingwar.adminapp.ui.screens.reviews.ReviewsScreen
+import com.jarlingwar.adminapp.ui.screens.reviews.UserReviewsScreen
 import com.jarlingwar.adminapp.ui.screens.user.UserScreen
 import com.jarlingwar.adminapp.ui.screens.user_list.UsersScreen
 import com.jarlingwar.adminapp.ui.view_models.SharedViewModel
@@ -82,6 +84,17 @@ fun NavSetup(navController: NavHostController, startScreenControl: MutableStateF
                 onNavToReviews = { navController.navigate(Destinations.UserReviews.route) },
                 onNavToListing = { navController.navigate(Destinations.Listing.route) }
             ) { navController.popBackStack() }
+        }
+
+        composable(Destinations.Reviews.route) {
+            ReviewsScreen { navController.navigate(it) }
+        }
+        composable(Destinations.UserReviews.route) {
+            val sharedViewModel: SharedViewModel = it.sharedViewModel(navController)
+            UserReviewsScreen(sharedViewModel = sharedViewModel) { navController.popBackStack() }
+        }
+        composable(Destinations.Search.route) {
+
         }
     }
 }

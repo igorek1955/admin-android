@@ -155,4 +155,5 @@
     <string name="user_countries">User countries</string>
     <string name="show_raw_data">Show Raw Data</string>
     <string name="hide_raw_data">Hide Raw Data</string>
+    <string name="show_all_reviews">Show all reviews</string>
 </resources>

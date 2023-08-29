@@ -51,6 +51,7 @@ import com.jarlingwar.adminapp.ui.common.LoadingDialog
 import com.jarlingwar.adminapp.ui.common.MyIcon
 import com.jarlingwar.adminapp.ui.common.MyImage
 import com.jarlingwar.adminapp.ui.common.MySnack
+import com.jarlingwar.adminapp.ui.common.TopBar
 import com.jarlingwar.adminapp.ui.screens.listing_list.HorizontalListingItem
 import com.jarlingwar.adminapp.ui.theme.AdminAppTheme
 import com.jarlingwar.adminapp.ui.theme.Type
@@ -269,74 +270,51 @@ private fun OptionsTopBar(
     onBack: () -> Unit
 ) {
     var showOptionsMenu by remember { mutableStateOf(false) }
-    TopAppBar(Modifier.fillMaxWidth()) {
-        Box(modifier = Modifier.fillMaxSize()) {
-            Row(
-                Modifier.fillMaxWidth(),
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                IconButton(
-                    onClick = { onBack() },
-                    Modifier.padding(4.dp)
-                ) {
-                    Image(
-                        painter = painterResource(id = R.drawable.ic_arrow_back),
-                        contentDescription = "back",
-                        alignment = Alignment.Center,
-                        colorFilter = ColorFilter.tint(MaterialTheme.adminColors.fillPrimary)
-                    )
-                }
+    TopBar(
+        title = stringResource(id = R.string.user_managment),
+        onBack = onBack
+    ) {
+        IconButton(onClick = { showOptionsMenu = true }) {
+            Image(
+                painter = painterResource(id = R.drawable.ic_options),
+                colorFilter = ColorFilter.tint(MaterialTheme.adminColors.primary),
+                contentDescription = "options"
+            )
+        }
+        DropdownMenu(
+            expanded = showOptionsMenu,
+            onDismissRequest = { showOptionsMenu = false }
+        ) {
+            val isUserBlocked = viewModel?.isUserBlocked ?: false
+            DropdownMenuItem(onClick = { viewModel?.block() }, enabled = !isUserBlocked) {
                 Text(
-                    text = stringResource(id = R.string.user_managment),
-                    modifier = Modifier.padding(start = 5.dp),
-                    style = Type.Subtitle2,
-                    color = MaterialTheme.adminColors.textPrimary
+                    text = stringResource(R.string.block),
+                    style = Type.Subtitle2
                 )
             }
-            Box(modifier = Modifier.align(Alignment.CenterEnd)) {
-                IconButton(onClick = { showOptionsMenu = true }) {
-                    Image(
-                        painter = painterResource(id = R.drawable.ic_options),
-                        colorFilter = ColorFilter.tint(MaterialTheme.adminColors.primary),
-                        contentDescription = "options"
-                    )
-                }
-                DropdownMenu(
-                    expanded = showOptionsMenu,
-                    onDismissRequest = { showOptionsMenu = false }
-                ) {
-                    val isUserBlocked = viewModel?.isUserBlocked ?: false
-                    DropdownMenuItem(onClick = { viewModel?.block() }, enabled = !isUserBlocked) {
-                        Text(
-                            text = stringResource(R.string.block),
-                            style = Type.Subtitle2
-                        )
-                    }
-                    DropdownMenuItem(onClick = { viewModel?.unblock() }, enabled = isUserBlocked) {
-                        Text(
-                            text = stringResource(R.string.unblock),
-                            style = Type.Subtitle2
-                        )
-                    }
-                    DropdownMenuItem(onClick = { viewModel?.blockAndDelete() }) {
-                        Text(
-                            text = stringResource(R.string.block_and_delete),
-                            style = Type.Subtitle2
-                        )
-                    }
-                    DropdownMenuItem(onClick = { viewModel?.deleteUserData() }) {
-                        Text(
-                            text = stringResource(R.string.delete_all_data),
-                            style = Type.Subtitle2
-                        )
-                    }
-                    DropdownMenuItem(onClick = { viewModel?.verify() }) {
-                        Text(
-                            text = stringResource(R.string.verify),
-                            style = Type.Subtitle2
-                        )
-                    }
-                }
+            DropdownMenuItem(onClick = { viewModel?.unblock() }, enabled = isUserBlocked) {
+                Text(
+                    text = stringResource(R.string.unblock),
+                    style = Type.Subtitle2
+                )
+            }
+            DropdownMenuItem(onClick = { viewModel?.blockAndDelete() }) {
+                Text(
+                    text = stringResource(R.string.block_and_delete),
+                    style = Type.Subtitle2
+                )
+            }
+            DropdownMenuItem(onClick = { viewModel?.deleteUserData() }) {
+                Text(
+                    text = stringResource(R.string.delete_all_data),
+                    style = Type.Subtitle2
+                )
+            }
+            DropdownMenuItem(onClick = { viewModel?.verify() }) {
+                Text(
+                    text = stringResource(R.string.verify),
+                    style = Type.Subtitle2
+                )
             }
         }
     }

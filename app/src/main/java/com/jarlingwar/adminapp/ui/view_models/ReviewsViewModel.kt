@@ -39,10 +39,10 @@ class ReviewsViewModel @Inject constructor(
     var showOnlyPendingReviews by mutableStateOf(false)
     private var pager: Pager<ReviewModel>? = null
 
-    fun init(user: UserModel? = null, showOnlyPendings: Boolean = false) {
+    fun init(user: UserModel? = null, isPending: Boolean = false) {
         this.user = user
         isLoading = true
-        showOnlyPendingReviews = showOnlyPendings
+        showOnlyPendingReviews = isPending
         viewModelScope.launch(Dispatchers.IO) {
             userManager.userInfoFlow.collectLatest { currentUser = it }
         }
@@ -81,6 +81,17 @@ class ReviewsViewModel @Inject constructor(
                     error = it.toUnknown()
                 }
         }
+    }
+
+    fun loadNext() {
+        pager?.loadNext()
+    }
+
+    fun switchMode() {
+        isLoading = true
+        showOnlyPendingReviews = !showOnlyPendingReviews
+        pager?.stop()
+        startPaging()
     }
 
     private fun getUserReviews() {

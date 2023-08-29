@@ -7,9 +7,11 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.defaultMinSize
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Card
@@ -42,13 +44,19 @@ import kotlin.math.roundToInt
 @Composable
 fun ReviewItem(review: ReviewModel, onApprove: () -> Unit, onReject: () -> Unit) {
     SwipeCard(
+        modifier = Modifier
+            .clickable(enabled = false, onClick = {})
+            .defaultMinSize(minHeight = 140.dp),
+        elevation = 3.dp,
+        shape = RoundedCornerShape(FixedDimens.cornerRadius),
         directions = setOf(RevealDirection.StartToEnd, RevealDirection.EndToStart),
         backgroundCardEndColor = MaterialTheme.adminColors.backgroundPrimary,
         backgroundCardStartColor = MaterialTheme.adminColors.backgroundPrimary,
         hiddenContentStart = {
             Box(
                 modifier = Modifier
-                    .size(140.dp)
+                    .fillMaxHeight()
+                    .width(140.dp)
                     .background(
                         MaterialTheme.adminColors.primary,
                         RoundedCornerShape(
@@ -72,7 +80,8 @@ fun ReviewItem(review: ReviewModel, onApprove: () -> Unit, onReject: () -> Unit)
         hiddenContentEnd = {
             Box(
                 modifier = Modifier
-                    .size(140.dp)
+                    .fillMaxHeight()
+                    .width(140.dp)
                     .background(
                         MaterialTheme.adminColors.secondary,
                         RoundedCornerShape(
@@ -96,53 +105,49 @@ fun ReviewItem(review: ReviewModel, onApprove: () -> Unit, onReject: () -> Unit)
         onBackgroundStartClick = onApprove,
         onBackgroundEndClick = onReject,
     ) {
-        Card(
-            modifier = Modifier
-                .clickable(enabled = false, onClick = {})
-                .padding(5.dp)
-                .defaultMinSize(minHeight = 140.dp),
-            elevation = 3.dp,
-            shape = RoundedCornerShape(FixedDimens.cornerRadius)
+        Column(
+            Modifier
+                .clickable(false, onClick = {})
+                .background(
+                    MaterialTheme.adminColors.backgroundPrimary,
+                    RoundedCornerShape(FixedDimens.cornerRadius)
+                )
+                .fillMaxWidth()
+                .padding(10.dp)
         ) {
-            Column(
-                Modifier
-                    .fillMaxWidth()
-                    .padding(10.dp)
-            ) {
-                Row {
-                    Column {
-                        MyImage(
-                            modifier = Modifier.size(70.dp),
-                            imgUrl = review.reviewerImageUrl,
-                            shape = CircleShape
-                        )
-                    }
-                    Column(modifier = Modifier.padding(start = 10.dp)) {
-                        Text(text = review.reviewerName, style = Type.Subtitle2M)
-                        Text(
-                            text = getDateHyphen(review.created),
-                            style = Type.Body2,
-                            color = MaterialTheme.adminColors.textSecondary
-                        )
-                        Row(verticalAlignment = Alignment.CenterVertically) {
-                            repeat(review.rating.roundToInt()) {
-                                Image(
-                                    modifier = Modifier.size(15.dp),
-                                    painter = painterResource(id = R.drawable.ic_filled_star),
-                                    contentDescription = null,
-                                    colorFilter = ColorFilter.tint(MaterialTheme.adminColors.primary)
-                                )
-                            }
-                            Text(text = review.rating.toString(), style = Type.Body3)
+            Row {
+                Column {
+                    MyImage(
+                        modifier = Modifier.size(70.dp),
+                        imgUrl = review.reviewerImageUrl,
+                        shape = CircleShape
+                    )
+                }
+                Column(modifier = Modifier.padding(start = 10.dp)) {
+                    Text(text = review.reviewerName, style = Type.Subtitle2M)
+                    Text(
+                        text = getDateHyphen(review.created),
+                        style = Type.Body2,
+                        color = MaterialTheme.adminColors.textSecondary
+                    )
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        repeat(review.rating.roundToInt()) {
+                            Image(
+                                modifier = Modifier.size(15.dp),
+                                painter = painterResource(id = R.drawable.ic_filled_star),
+                                contentDescription = null,
+                                colorFilter = ColorFilter.tint(MaterialTheme.adminColors.primary)
+                            )
                         }
+                        Text(text = review.rating.toString(), style = Type.Body3)
                     }
                 }
-                ExpandableText(
-                    modifier = Modifier.padding(top = 5.dp),
-                    text = review.body,
-                    style = Type.Body2
-                )
             }
+            ExpandableText(
+                modifier = Modifier.padding(top = 5.dp),
+                text = review.body,
+                style = Type.Body2
+            )
         }
     }
 }
@@ -152,6 +157,12 @@ fun ReviewItem(review: ReviewModel, onApprove: () -> Unit, onReject: () -> Unit)
 private fun ReviewItemPreview() {
     AdminAppTheme {
         val review = ReviewModel.getMock()
-        ReviewItem(review, {}, {})
+        Box(
+            modifier = Modifier
+                .background(MaterialTheme.adminColors.backgroundPrimary)
+                .padding(10.dp)
+        ) {
+            ReviewItem(review, {}, {})
+        }
     }
 }

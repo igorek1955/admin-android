@@ -50,11 +50,14 @@ fun SwipeCard(
     onContentClick: () -> Unit = {},
     onBackgroundStartClick: () -> Unit = {},
     onBackgroundEndClick: () -> Unit = {},
+    elevation: Dp = 0.dp,
+    shape: RoundedCornerShape = RoundedCornerShape(5.dp),
     maxRevealDp: Dp = 75.dp,
     directions: Set<RevealDirection> = setOf(
         RevealDirection.StartToEnd,
         RevealDirection.EndToStart
     ),
+    backgroundCardColor: Color = MaterialTheme.colors.background,
     backgroundCardModifier: Modifier = modifier,
     backgroundCardStartColor: Color = MaterialTheme.colors.secondaryVariant,
     backgroundCardEndColor: Color = MaterialTheme.colors.secondary,
@@ -112,10 +115,11 @@ fun SwipeCard(
 
         Card(
             contentColor = backgroundCardContentColor,
-            backgroundColor = Color.Transparent,
+            backgroundColor = backgroundCardColor,
+            elevation = elevation,
             modifier = backgroundCardModifier
                 .matchParentSize(),
-            shape = RoundedCornerShape(0)
+            shape = shape
         ) {
             Row(
                 modifier = Modifier
