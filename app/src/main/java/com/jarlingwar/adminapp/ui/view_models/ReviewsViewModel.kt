@@ -34,7 +34,6 @@ class ReviewsViewModel @Inject constructor(
     var isLoading by mutableStateOf(false)
     var isLoadingNext by mutableStateOf(false)
     var isRefreshing by mutableStateOf(false)
-    var isNoResults by mutableStateOf(false)
     var currentUser by mutableStateOf<UserModel?>(null)
     var showOnlyPendingReviews by mutableStateOf(false)
     private var pager: Pager<ReviewModel>? = null
@@ -123,13 +122,8 @@ class ReviewsViewModel @Inject constructor(
                     ReportHandler.reportError(t)
                     error = t.toUnknown()
                 }
-
-                override fun onLoadNext() {
-                    isLoadingNext = true
-                }
-
+                override fun onLoadNext() { isLoadingNext = true }
                 override fun onSuccess(result: List<ReviewModel?>) {
-                    isNoResults = false
                     isLoading = false
                     isLoadingNext = false
                     isRefreshing = false
@@ -137,7 +131,7 @@ class ReviewsViewModel @Inject constructor(
                 }
 
                 override fun onNoResults() {
-                    isNoResults = true
+                    isLoading = false
                 }
             }, pagingFlow = {
                 if (showOnlyPendingReviews) {

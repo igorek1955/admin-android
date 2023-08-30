@@ -14,7 +14,7 @@ abstract class AbstractPager<T> {
     abstract fun onSuccess(result: List<T?>)
     abstract fun onLoadNext()
     open fun onFirstLoad() { }
-    abstract fun onNoResults()
+    open fun onNoResults() {}
 }
 
 class Pager<T>(

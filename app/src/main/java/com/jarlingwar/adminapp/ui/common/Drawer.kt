@@ -52,7 +52,7 @@ enum class DrawerItem(val titleId: Int, val iconRes: Int, val route: String) {
         R.drawable.ic_published_listings,
         Destinations.PublishedListings.route
     ),
-    Search(R.string.search, R.drawable.ic_search, Destinations.Search.route),
+    SEARCH(R.string.search, R.drawable.ic_search, Destinations.Search.route),
     USERS(R.string.users, R.drawable.ic_users, Destinations.Users.route),
     REVIEWS(R.string.reviews, R.drawable.ic_pen, Destinations.Reviews.route),
 }

@@ -38,6 +38,8 @@ interface IUserManager {
     suspend fun saveNewUser(userModel: UserModel): Result<Boolean>
     suspend fun saveUser(userModel: UserModel): Result<Boolean>
     suspend fun getUserById(userId: String): UserResponse
+    suspend fun getUsersByEmail(email: String): Result<List<UserModel>>
+    suspend fun getUsersByName(name: String): Result<List<UserModel>>
     suspend fun updateUserToken(token: String)
     suspend fun logout()
     suspend fun deleteUser(userModel: UserModel): Result<Boolean>
@@ -177,7 +179,33 @@ class UserManager @Inject constructor(
         }
     }
 
-    override suspend fun getUserById(userId: String): UserResponse = remoteStorage.getUser(userId)
+    override suspend fun getUserById(userId: String): UserResponse {
+        return try {
+            remoteStorage.getUser(userId)
+        } catch (e: Exception) {
+            ReportHandler.reportError(e)
+            Result.failure(e)
+        }
+    }
+
+    override suspend fun getUsersByEmail(email: String): Result<List<UserModel>> {
+        return try {
+            remoteStorage.getUsersByEmail(email)
+        } catch (e: Exception) {
+            ReportHandler.reportError(e)
+            Result.failure(e)
+        }
+    }
+
+    override suspend fun getUsersByName(name: String): Result<List<UserModel>> {
+        return try {
+            remoteStorage.getUsersByName(name)
+        } catch (e: Exception) {
+            ReportHandler.reportError(e)
+            Result.failure(e)
+        }
+    }
+
     override suspend fun updateUserToken(token: String) {
         userInfoFlow.value?.let { user ->
             user.fcmToken = token

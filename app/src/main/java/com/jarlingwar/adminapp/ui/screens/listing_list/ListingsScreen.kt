@@ -33,6 +33,7 @@ import com.jarlingwar.adminapp.ui.common.DropDownTextMenu
 import com.jarlingwar.adminapp.ui.common.LoadingIndicator
 import com.jarlingwar.adminapp.ui.common.LoadingNextIndicator
 import com.jarlingwar.adminapp.ui.common.NoResults
+import com.jarlingwar.adminapp.ui.common.showSnack
 import com.jarlingwar.adminapp.ui.theme.adminColors
 import com.jarlingwar.adminapp.ui.theme.paddingPrimaryStartEnd
 import com.jarlingwar.adminapp.ui.view_models.ListingsViewModel
@@ -45,7 +46,7 @@ fun ListingsScreen(
     viewModel: ListingsViewModel = hiltViewModel(),
     sharedViewModel: SharedViewModel?,
     isPendingListings: Boolean = true,
-    onListingTap: () -> Unit,
+    onNavigateToListing: () -> Unit,
     onNavigate: (String) -> Unit
 ) {
     val pullRefreshState = rememberPullRefreshState(viewModel.isRefreshing, { viewModel.refresh() })
@@ -79,17 +80,17 @@ fun ListingsScreen(
                     Modifier.weight(0.5f), values = sortOrder, label = stringResource(
                         id = R.string.sorting
                     ),
-                    selectedVal = stringResource(id = viewModel.params.orderBy!!.titleResId)
+                    defaultVal = stringResource(id = viewModel.params.orderBy!!.titleResId)
                 ) { viewModel.updateSortOrder(it) }
                 Spacer(modifier = Modifier.width(2.dp))
                 DropDownTextMenu(
                     Modifier.weight(0.5f), values = countries, label = stringResource(
                         id = R.string.country
                     ),
-                    selectedVal = stringResource(id = viewModel.params.country!!.titleResId)
+                    defaultVal = stringResource(id = viewModel.params.country!!.titleResId)
                 ) { viewModel.updateCountry(it) }
             }
-            if (viewModel.isNoResults) {
+            if (viewModel.listings.isEmpty() && !viewModel.isLoading) {
                 NoResults()
             } else {
                 Box(Modifier.pullRefresh(pullRefreshState)) {
@@ -114,7 +115,7 @@ fun ListingsScreen(
                         ) { index, item ->
                             ListingItem(listing = item) {
                                 sharedViewModel?.selectedListing = item
-                                onListingTap()
+                                onNavigateToListing()
                             }
                             if (index == viewModel.listings.size - 5) viewModel.loadNext()
                         }
@@ -127,6 +128,7 @@ fun ListingsScreen(
                     if (viewModel.isLoading && viewModel.listings.isEmpty()) {
                         LoadingIndicator()
                     }
+                    viewModel.error?.showSnack { viewModel.error = null }
                 }
             }
         }

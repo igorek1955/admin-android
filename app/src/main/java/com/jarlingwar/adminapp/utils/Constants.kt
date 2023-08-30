@@ -34,6 +34,7 @@ object ReviewFields {
 object UserFields {
     const val EMAIL = "email"
     const val UID = "userId"
+    const val NAME = "displayName"
     const val CREATED = "created"
     const val UPDATED = "updated"
     const val REPORTS = "reports"

@@ -1,7 +1,9 @@
 package com.jarlingwar.adminapp.data.firebase
 
+import com.google.android.gms.tasks.Task
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.firestore.QuerySnapshot
 import com.jarlingwar.adminapp.domain.models.BlockedUser
 import com.jarlingwar.adminapp.domain.models.UserModel
 import com.jarlingwar.adminapp.domain.models.UsersQueryParams
@@ -75,20 +77,25 @@ class UsersRepositoryImpl(
         }
     }
 
-    override suspend fun getUser(uid: String) = suspendCoroutine<UserResponse> { continuation ->
-        reference
+    override suspend fun getUser(uid: String): UserResponse {
+        val task = reference
             .whereEqualTo(UserFields.UID, uid)
             .get()
-            .addOnCompleteListener {
-                if (it.isSuccessful) {
-                    val documents = it.result.documents
-                    if (documents.isNotEmpty()) {
-                        val user = documents[0].toObject(UserModel::class.java)
-                        continuation.resume(Result.success(user))
-                    } else continuation.resume(Result.failure(CustomError.GeneralError.UserNotFound()))
-                } else continuation.resume(Result.failure(it.exception.toUnknown()))
-            }
-            .addOnFailureListener { continuation.resume(Result.failure(it)) }
+        return processUserTask(task)
+    }
+
+    override suspend fun getUsersByEmail(email: String): Result<List<UserModel>> {
+        val task = reference
+            .whereEqualTo(UserFields.EMAIL, email)
+            .get()
+        return processUsersTask(task)
+    }
+
+    override suspend fun getUsersByName(name: String): Result<List<UserModel>> {
+        val task = reference
+            .whereEqualTo(UserFields.NAME, name)
+            .get()
+        return processUsersTask(task)
     }
 
     override suspend fun registerUser(
@@ -131,43 +138,15 @@ class UsersRepositoryImpl(
     }
 
     override suspend fun getAllUsers(): Result<List<UserModel>> {
-        return suspendCoroutine { continuation ->
-            reference.get()
-                .addOnCompleteListener {
-                    if (it.isSuccessful) {
-                        val documents = it.result.documents
-                        val users = arrayListOf<UserModel>()
-                        documents.forEach { doc ->
-                            doc.toObject(UserModel::class.java)?.let { user ->
-                                users.add(user)
-                            }
-                        }
-                        continuation.resume(Result.success(users))
-                    } else continuation.resume(Result.failure(it.exception.toUnknown()))
-                }
-                .addOnFailureListener { continuation.resume(Result.failure(it)) }
-        }
+        val task = reference.get()
+        return processUsersTask(task)
     }
 
     override suspend fun getReportedUsers(): Result<List<UserModel>> {
-        return suspendCoroutine { continuation ->
-            reference
-                .whereGreaterThan(UserFields.REPORTS, 0)
-                .get()
-                .addOnCompleteListener {
-                    if (it.isSuccessful) {
-                        val documents = it.result.documents
-                        val users = arrayListOf<UserModel>()
-                        documents.forEach { doc ->
-                            doc.toObject(UserModel::class.java)?.let { user ->
-                                users.add(user)
-                            }
-                        }
-                        continuation.resume(Result.success(users))
-                    } else continuation.resume(Result.failure(it.exception.toUnknown()))
-                }
-                .addOnFailureListener { continuation.resume(Result.failure(it)) }
-        }
+        val task = reference
+            .whereGreaterThan(UserFields.REPORTS, 0)
+            .get()
+        return processUsersTask(task)
     }
 
     override fun getUsersPaging(pagingReference: Flow<Int>): Flow<List<UserModel>> {
@@ -210,6 +189,39 @@ class UsersRepositoryImpl(
         } catch (e: Exception) {
             ReportHandler.reportError(e)
             Result.failure(e)
+        }
+    }
+
+
+    private suspend fun processUserTask(task: Task<QuerySnapshot>): UserResponse {
+        return suspendCoroutine { continuation ->
+            task
+                .addOnCompleteListener {
+                    if (it.isSuccessful) {
+                        val documents = it.result.documents
+                        if (documents.isNotEmpty()) {
+                            val user = documents[0].toObject(UserModel::class.java)
+                            continuation.resume(Result.success(user))
+                        } else continuation.resume(Result.failure(CustomError.GeneralError.UserNotFound()))
+                    } else continuation.resume(Result.failure(it.exception.toUnknown()))
+                }
+        }
+    }
+
+    private suspend fun processUsersTask(task: Task<QuerySnapshot>): Result<List<UserModel>> {
+        return suspendCoroutine { continuation ->
+            task
+                .addOnCompleteListener {
+                    if (it.isSuccessful) {
+                        val documents = it.result.documents
+                        val users = arrayListOf<UserModel>()
+                        documents.forEach { doc ->
+                            val user = doc.toObject(UserModel::class.java)
+                            user?.let { users.add(user) }
+                        }
+                        continuation.resume(Result.success(users))
+                    } else continuation.resume(Result.failure(it.exception.toUnknown()))
+                }
         }
     }
 }

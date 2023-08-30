@@ -32,7 +32,6 @@ class UsersViewModel @Inject constructor(
     var isLoading by mutableStateOf(false)
     var isLoadingNext by mutableStateOf(false)
     var isRefreshing by mutableStateOf(false)
-    var isNoResults by mutableStateOf(false)
     var currentUser by mutableStateOf<UserModel?>(null)
     private var pager: Pager<UserModel>? = null
 
@@ -70,21 +69,12 @@ class UsersViewModel @Inject constructor(
                     ReportHandler.reportError(t)
                     error = t.toUnknown()
                 }
-
-                override fun onLoadNext() {
-                    isLoadingNext = true
-                }
-
+                override fun onLoadNext() { isLoadingNext = true }
                 override fun onSuccess(result: List<UserModel?>) {
-                    isNoResults = false
                     isLoading = false
                     isLoadingNext = false
                     isRefreshing = false
                     users = result.filterNotNull()
-                }
-
-                override fun onNoResults() {
-                    isNoResults = true
                 }
             }, pagingFlow = { userManager.getUsersPaging(it) })
     }

@@ -101,11 +101,9 @@ class AuthViewModel @Inject constructor(
             userManager.registerUser(email, password, displayName) {
                 screenType = Screen.REGISTRATION_SUCCESS
                 isLoading = false
-                ReportHandler.logEvent("registerNewUser success")
             }.onFailure {
                 error = CustomError.AuthError.Register(it)
                 isLoading = false
-                ReportHandler.logEvent("registerNewUser error:${it.message}")
             }
         }
     }

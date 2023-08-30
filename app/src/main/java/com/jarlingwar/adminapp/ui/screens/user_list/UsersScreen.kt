@@ -31,6 +31,7 @@ import com.jarlingwar.adminapp.ui.common.DropDownTextMenu
 import com.jarlingwar.adminapp.ui.common.LoadingIndicator
 import com.jarlingwar.adminapp.ui.common.LoadingNextIndicator
 import com.jarlingwar.adminapp.ui.common.NoResults
+import com.jarlingwar.adminapp.ui.common.showSnack
 import com.jarlingwar.adminapp.ui.theme.adminColors
 import com.jarlingwar.adminapp.ui.theme.paddingPrimaryStartEnd
 import com.jarlingwar.adminapp.ui.view_models.SharedViewModel
@@ -71,10 +72,10 @@ fun UsersScreen(
                     Modifier.weight(0.5f), values = sortOrder, label = stringResource(
                         id = R.string.sorting
                     ),
-                    selectedVal = stringResource(id = viewModel.params.orderBy.titleResId)
+                    defaultVal = stringResource(id = viewModel.params.orderBy.titleResId)
                 ) { viewModel.updateSortOrder(it) }
             }
-            if (viewModel.isNoResults) {
+            if (viewModel.users.isEmpty() && !viewModel.isLoading) {
                 NoResults()
             } else {
                 Box(Modifier.pullRefresh(pullRefreshState)) {
@@ -112,6 +113,7 @@ fun UsersScreen(
                     if (viewModel.isLoading && viewModel.users.isEmpty()) {
                         LoadingIndicator()
                     }
+                    viewModel.error?.showSnack { viewModel.error = null }
                 }
             }
         }

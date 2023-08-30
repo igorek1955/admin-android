@@ -4,8 +4,6 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.focusable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.padding
 import androidx.compose.material.DropdownMenuItem
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.ExposedDropdownMenuBox
@@ -25,24 +23,26 @@ import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
-import com.jarlingwar.adminapp.R
 import com.jarlingwar.adminapp.ui.theme.AdminAppTheme
 import com.jarlingwar.adminapp.ui.theme.adminColors
 
+/**
+ * @param selectedVal use outside value selector if not null
+ */
 @OptIn(ExperimentalMaterialApi::class, ExperimentalComposeUiApi::class)
 @Composable
 fun DropDownTextMenu(
     modifier: Modifier = Modifier,
     leadingIconRes: Int? = null,
-    selectedVal: String? = null,
+    defaultVal: String? = null,
+    backgroundColor: Color = MaterialTheme.adminColors.backgroundSecondary,
     label: String,
     values: List<String>,
     onValueChange: (Int) -> Unit
 ) {
     var selectedItem by remember {
-        selectedVal?.let { mutableStateOf(it) } ?: mutableStateOf(values.first())
+        defaultVal?.let { mutableStateOf(it) } ?: mutableStateOf(values.first())
     }
     var isExpanded by remember { mutableStateOf(false) }
     val keyboard = LocalSoftwareKeyboardController.current
@@ -66,7 +66,7 @@ fun DropDownTextMenu(
                 } else null,
                 label = { Text(label) },
                 colors = TextFieldDefaults.textFieldColors(
-                    backgroundColor = MaterialTheme.adminColors.backgroundSecondary,
+                    backgroundColor = backgroundColor,
                     trailingIconColor = MaterialTheme.adminColors.primary,
                     focusedLabelColor = MaterialTheme.adminColors.textSecondary,
                     unfocusedLabelColor = MaterialTheme.adminColors.textSecondary,

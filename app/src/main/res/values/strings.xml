@@ -156,4 +156,5 @@
     <string name="show_raw_data">Show Raw Data</string>
     <string name="hide_raw_data">Hide Raw Data</string>
     <string name="show_all_reviews">Show all reviews</string>
+    <string name="search_by">Search by</string>
 </resources>

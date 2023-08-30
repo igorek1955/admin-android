@@ -59,6 +59,7 @@ class ListingManager @Inject constructor(
                     Result.failure(exception.toUnknown())
                 } else Result.success(true)
             } catch (e: Exception) {
+                ReportHandler.reportError(e)
                 Result.failure(e.toUnknown())
             }
         }
@@ -92,6 +93,7 @@ class ListingManager @Inject constructor(
                     remoteStorage.getListingsByTags(queries, queryLimit)
                 }
             } catch (e: Exception) {
+                ReportHandler.reportError(e)
                 Result.failure(e)
             }
         }

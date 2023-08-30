@@ -20,6 +20,7 @@ import com.jarlingwar.adminapp.ui.screens.listing.ListingScreen
 import com.jarlingwar.adminapp.ui.screens.listing_list.ListingsScreen
 import com.jarlingwar.adminapp.ui.screens.reviews.ReviewsScreen
 import com.jarlingwar.adminapp.ui.screens.reviews.UserReviewsScreen
+import com.jarlingwar.adminapp.ui.screens.search.SearchScreen
 import com.jarlingwar.adminapp.ui.screens.user.UserScreen
 import com.jarlingwar.adminapp.ui.screens.user_list.UsersScreen
 import com.jarlingwar.adminapp.ui.view_models.SharedViewModel
@@ -57,7 +58,7 @@ fun NavSetup(navController: NavHostController, startScreenControl: MutableStateF
             ListingsScreen(
                 sharedViewModel = sharedViewModel,
                 isPendingListings = false,
-                onListingTap = { navController.navigate(Destinations.Listing.route) },
+                onNavigateToListing = { navController.navigate(Destinations.Listing.route) },
                 onNavigate = { route -> navController.navigate(route) }
             )
         }
@@ -66,7 +67,7 @@ fun NavSetup(navController: NavHostController, startScreenControl: MutableStateF
             ListingsScreen(
                 sharedViewModel = sharedViewModel,
                 isPendingListings = true,
-                onListingTap = { navController.navigate(Destinations.Listing.route) },
+                onNavigateToListing = { navController.navigate(Destinations.Listing.route) },
                 onNavigate = { route -> navController.navigate(route) }
             )
         }
@@ -94,7 +95,13 @@ fun NavSetup(navController: NavHostController, startScreenControl: MutableStateF
             UserReviewsScreen(sharedViewModel = sharedViewModel) { navController.popBackStack() }
         }
         composable(Destinations.Search.route) {
-
+            val sharedViewModel: SharedViewModel = it.sharedViewModel(navController)
+            SearchScreen(
+                sharedViewModel = sharedViewModel,
+                onNavigateToListing = { navController.navigate(Destinations.Listing.route) },
+                onNavigateToUser = { navController.navigate(Destinations.User.route) },
+                onNavigate =  { navController.navigate(it) }
+            )
         }
     }
 }

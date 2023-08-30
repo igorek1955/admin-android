@@ -116,7 +116,7 @@ private fun myTextFieldDefaults() = TextFieldDefaults.textFieldColors(
 )
 
 @Composable
-private fun InputFieldIcon(modifier: Modifier = Modifier, iconRes: Int) {
+fun InputFieldIcon(modifier: Modifier = Modifier, iconRes: Int) {
     Image(
         modifier = modifier.size(24.dp),
         painter = painterResource(id = iconRes),

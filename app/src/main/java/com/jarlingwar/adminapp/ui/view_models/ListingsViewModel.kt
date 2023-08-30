@@ -39,7 +39,6 @@ class ListingsViewModel @Inject constructor(
     var isLoading by mutableStateOf(false)
     var isLoadingNext by mutableStateOf(false)
     var isRefreshing by mutableStateOf(false)
-    var isNoResults by mutableStateOf(false)
     var currentUser by mutableStateOf<UserModel?>(null)
     private var pager: Pager<ListingModel>? = null
 
@@ -91,13 +90,8 @@ class ListingsViewModel @Inject constructor(
                     ReportHandler.reportError(t)
                     error = t.toUnknown()
                 }
-
-                override fun onLoadNext() {
-                    isLoadingNext = true
-                }
-
+                override fun onLoadNext() { isLoadingNext = true }
                 override fun onSuccess(result: List<ListingModel?>) {
-                    isNoResults = false
                     isLoading = false
                     isLoadingNext = false
                     isRefreshing = false
@@ -105,7 +99,7 @@ class ListingsViewModel @Inject constructor(
                 }
 
                 override fun onNoResults() {
-                    isNoResults = true
+                   isLoading = false
                 }
             }, pagingFlow = {
                 if (isPendingListings) listingManager.getPendingListingsPaging(it)

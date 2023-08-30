@@ -16,6 +16,8 @@ interface IUsersRepository {
     suspend fun deleteUser(userModel: UserModel): DeleteUserResponse
     suspend fun resetPassword(email: String): Result<Boolean>
     suspend fun getUser(uid: String): UserResponse
+    suspend fun getUsersByEmail(email: String): Result<List<UserModel>>
+    suspend fun getUsersByName(name: String): Result<List<UserModel>>
     suspend fun registerUser(email: String, password: String, displayName: String): UserResponse
     suspend fun authenticateUser(email: String, password: String): UserResponse
     suspend fun getAllUsers() : Result<List<UserModel>>
