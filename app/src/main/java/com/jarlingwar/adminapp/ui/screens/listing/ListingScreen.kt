@@ -60,7 +60,6 @@ import com.jarlingwar.adminapp.domain.models.ListingModel
 import com.jarlingwar.adminapp.domain.models.ListingStatus
 import com.jarlingwar.adminapp.domain.models.RejectReason
 import com.jarlingwar.adminapp.domain.models.UserModel
-import com.jarlingwar.adminapp.domain.models.getCategoryByType
 import com.jarlingwar.adminapp.ui.common.ImageDialog
 import com.jarlingwar.adminapp.ui.common.IndicatorLine
 import com.jarlingwar.adminapp.ui.common.LoadingDialog
@@ -440,18 +439,16 @@ private fun ListingBody(
 
         //details
         Spacer(modifier = Modifier.height(5.dp))
-        getCategoryByType(listing.category)?.titleResId?.let { resId ->
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween
-            ) {
-                Text(
-                    text = stringResource(id = R.string.category),
-                    style = Type.Body1,
-                    color = MaterialTheme.adminColors.textSecondary
-                )
-                Text(text = stringResource(id = resId), style = Type.Body1)
-            }
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceBetween
+        ) {
+            Text(
+                text = stringResource(id = R.string.category),
+                style = Type.Body1,
+                color = MaterialTheme.adminColors.textSecondary
+            )
+            Text(text = listing.category.toString(), style = Type.Body1)
         }
         Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
             Text(

@@ -1,18 +1,32 @@
 package com.jarlingwar.adminapp.domain.models
 
 import com.jarlingwar.adminapp.R
+import com.jarlingwar.adminapp.utils.geo.capitalized
 
-enum class Category(val type: String, val titleResId: Int) {
-    SERVICE("service", R.string.service),
-    EXCHANGE("exchange", R.string.exchange),
-    USED("used", R.string.used),
-    RESTAURANT("food", R.string.food),
-    PLACE("place", R.string.place),
-    ELECTRONICS("electronics", R.string.electronics),
-    CLOTHES("clothes", R.string.clothes),
-    NEW("new", R.string.new_things)
+enum class Category {
+    SERVICE,
+    EXCHANGE,
+    USED,
+    FOOD,
+    PLACE,
+    ELECTRONICS,
+    CLOTHES,
+    NEW;
+
+    override fun toString(): String {
+       return this.name.capitalized()
+    }
 }
 
-fun getCategoryByType(type: String?): Category? {
-    return Category.values().firstOrNull { it.type == type }
+fun Category.getResId(): Int {
+    return when (this) {
+        Category.SERVICE -> R.string.service
+        Category.EXCHANGE -> R.string.exchange
+        Category.USED -> R.string.used
+        Category.FOOD -> R.string.food
+        Category.PLACE -> R.string.place
+        Category.ELECTRONICS -> R.string.electronics
+        Category.CLOTHES -> R.string.clothes
+        Category.NEW -> R.string.new_things
+    }
 }

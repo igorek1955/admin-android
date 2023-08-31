@@ -8,7 +8,7 @@ import kotlinx.parcelize.Parcelize
 data class ListingModel(
     var listingId: String = "",
     val userId: String = "",
-    var category: String = "",
+    var category: Category = Category.NEW,
     var approved: Boolean = false,
     var localImgUrlList: List<String> = emptyList(),
     var remoteImgUrlList: List<String> = emptyList(),
@@ -31,7 +31,7 @@ data class ListingModel(
         fun getMock(): ListingModel {
             return ListingModel(
                 title = "Test title super long title 23 title",
-                category = "service",
+                category = Category.SERVICE,
                 created = System.currentTimeMillis(),
                 price = 123423,
                 reports = 23,
@@ -50,11 +50,11 @@ data class ListingModel(
     }
 }
 
-enum class ListingStatus(val resId: Int) {
-    SOLD(R.string.sold),
-    PUBLISHED(R.string.published),
-    REJECTED(R.string.rejected),
-    UNPUBLISHED(R.string.unpublished)
+enum class ListingStatus {
+    SOLD,
+    PUBLISHED,
+    REJECTED,
+    UNPUBLISHED
 }
 
 enum class RejectReason(val resId: Int, var text: String = "") {

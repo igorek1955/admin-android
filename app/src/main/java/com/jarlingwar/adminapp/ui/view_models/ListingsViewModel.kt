@@ -90,7 +90,11 @@ class ListingsViewModel @Inject constructor(
                     ReportHandler.reportError(t)
                     error = t.toUnknown()
                 }
-                override fun onLoadNext() { isLoadingNext = true }
+
+                override fun onLoadNext() {
+                    isLoadingNext = true
+                }
+
                 override fun onSuccess(result: List<ListingModel?>) {
                     isLoading = false
                     isLoadingNext = false
@@ -99,7 +103,9 @@ class ListingsViewModel @Inject constructor(
                 }
 
                 override fun onNoResults() {
-                   isLoading = false
+                    isLoading = false
+                    isLoadingNext = false
+                    isRefreshing = false
                 }
             }, pagingFlow = {
                 if (isPendingListings) listingManager.getPendingListingsPaging(it)

@@ -93,7 +93,7 @@ fun ListingItem(listing: ListingModel, onItemClick: (ListingModel) -> Unit) {
                 .padding(horizontal = 5.dp)
         ) {
             Text(
-                text = listing.category,
+                text = listing.category.toString(),
                 style = Type.Body2, color = MaterialTheme.adminColors.textTertiary
             )
             Text(
@@ -165,7 +165,7 @@ fun HorizontalListingItem(listing: ListingModel, onItemClick: (ListingModel) -> 
                     )
                     Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
                         Text(
-                            text = listing.category,
+                            text = listing.category.toString(),
                             style = Type.Body2, color = MaterialTheme.adminColors.textTertiary
                         )
                         Text(
