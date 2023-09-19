@@ -241,8 +241,12 @@ fun ListingScreen(
         MySnack(text) { viewModel.error = null }
     }
 
-    if (showRejectDialog) RejectDialog(onApply = { viewModel.reject(it) }) { showRejectDialog = false }
-    if (viewModel.isSuccess)  MySnack(stringResource(R.string.action_success)) { viewModel.isSuccess = false }
+    if (showRejectDialog) RejectDialog(onApply = { viewModel.reject(it) }) {
+        showRejectDialog = false
+    }
+    if (viewModel.isSuccess) MySnack(stringResource(R.string.action_success)) {
+        viewModel.isSuccess = false
+    }
     if (viewModel.isDeleteSuccess) onBackTap()
     if (viewModel.isLoading) LoadingDialog()
 }
@@ -491,7 +495,7 @@ private fun ListingBody(
             Text(text = listing.reports.toString(), style = Type.Body1)
         }
         var showRawData by remember { mutableStateOf(false) }
-        val rotation by animateFloatAsState(targetValue = if (showRawData) 180f else 0f)
+        val rotation by animateFloatAsState(targetValue = if (showRawData) 180f else 0f, label = "")
         Column {
             Button(
                 modifier = Modifier
@@ -505,7 +509,13 @@ private fun ListingBody(
                     painter = painterResource(id = R.drawable.ic_arrow_down),
                     contentDescription = null
                 )
-                Text(text = stringResource(id = R.string.show_raw_data), style = Type.Subtitle2M)
+                Text(
+                    text = stringResource(
+                        if (!showRawData) R.string.show_raw_data
+                        else R.string.hide_raw_data
+                    ),
+                    style = Type.Subtitle2M
+                )
             }
             AnimatedVisibility(
                 visible = showRawData,

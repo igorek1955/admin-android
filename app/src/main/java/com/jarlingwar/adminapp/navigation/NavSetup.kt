@@ -18,6 +18,7 @@ import com.jarlingwar.adminapp.ui.common.SplashScreen
 import com.jarlingwar.adminapp.ui.screens.auth.AuthScreen
 import com.jarlingwar.adminapp.ui.screens.listing.ListingScreen
 import com.jarlingwar.adminapp.ui.screens.listing_list.ListingsScreen
+import com.jarlingwar.adminapp.ui.screens.reports.ReportsScreen
 import com.jarlingwar.adminapp.ui.screens.reviews.ReviewsScreen
 import com.jarlingwar.adminapp.ui.screens.reviews.UserReviewsScreen
 import com.jarlingwar.adminapp.ui.screens.search.SearchScreen
@@ -97,6 +98,15 @@ fun NavSetup(navController: NavHostController, startScreenControl: MutableStateF
         composable(Destinations.Search.route) {
             val sharedViewModel: SharedViewModel = it.sharedViewModel(navController)
             SearchScreen(
+                sharedViewModel = sharedViewModel,
+                onNavigateToListing = { navController.navigate(Destinations.Listing.route) },
+                onNavigateToUser = { navController.navigate(Destinations.User.route) },
+                onNavigate =  { navController.navigate(it) }
+            )
+        }
+        composable(Destinations.Reports.route) {
+            val sharedViewModel: SharedViewModel = it.sharedViewModel(navController)
+            ReportsScreen(
                 sharedViewModel = sharedViewModel,
                 onNavigateToListing = { navController.navigate(Destinations.Listing.route) },
                 onNavigateToUser = { navController.navigate(Destinations.User.route) },

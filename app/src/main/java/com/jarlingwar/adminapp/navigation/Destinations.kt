@@ -58,6 +58,11 @@ object Destinations {
         override val route: String = "reviews"
         override val title: Int = 0
     }
+
+    object Reports : Destination {
+        override val route: String = "reports"
+        override val title: Int = 0
+    }
 }
 
 

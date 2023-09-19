@@ -88,7 +88,6 @@ fun UserScreen(
         ) {
             item { UserCard(user, viewModel.isUserBlocked, onNavToReviews) }
             item { UserDetails(viewModel.userData) }
-            item { Text(text = user.prettyPrint()) }
             items(items = viewModel.listings, key = { it.listingId }) { item ->
                 HorizontalListingItem(listing = item) {
                     sharedViewModel.selectedListing = it
@@ -149,7 +148,7 @@ private fun UserDetails(data: UserViewData) {
             fieldValue = data.usedLocations.toString()
         )
         var showRawData by remember { mutableStateOf(false) }
-        val rotation by animateFloatAsState(targetValue = if (showRawData) 180f else 0f)
+        val rotation by animateFloatAsState(targetValue = if (showRawData) 180f else 0f, label = "")
         Column {
             Button(
                 modifier = Modifier

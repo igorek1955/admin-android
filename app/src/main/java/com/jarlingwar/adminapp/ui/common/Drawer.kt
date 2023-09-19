@@ -26,6 +26,7 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -55,6 +56,7 @@ enum class DrawerItem(val titleId: Int, val iconRes: Int, val route: String) {
     SEARCH(R.string.search, R.drawable.ic_search, Destinations.Search.route),
     USERS(R.string.users, R.drawable.ic_users, Destinations.Users.route),
     REVIEWS(R.string.reviews, R.drawable.ic_pen, Destinations.Reviews.route),
+    REPORTS(R.string.reports, R.drawable.ic_report, Destinations.Reports.route)
 }
 
 @Composable
@@ -122,13 +124,14 @@ private fun DrawerBody(selectedItem: DrawerItem, onNavigate: (String) -> Unit) {
                 val isSelected = selectedItem == item
                 Row(Modifier
                     .fillMaxWidth()
+                    .background(if (isSelected) MaterialTheme.adminColors.primary else MaterialTheme.adminColors.backgroundPrimary)
                     .clickable { onNavigate(item.route) }
                     .padding(10.dp),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     Image(
                         painter = painterResource(id = item.iconRes),
-                        colorFilter = ColorFilter.tint(if (isSelected) MaterialTheme.adminColors.primary else MaterialTheme.adminColors.fillAltPrimary),
+                        colorFilter = ColorFilter.tint(if (isSelected) Color.White else MaterialTheme.adminColors.fillAltPrimary),
                         contentDescription = null
                     )
                     Spacer(Modifier.width(10.dp))
@@ -175,7 +178,15 @@ fun DrawerScaffold(
                 email = currentUser?.email ?: "",
                 imgUrl = currentUser?.profileImageUrl ?: "",
                 selectedItem = currentDestination,
-                onNavigate = onNavigate
+                onNavigate = {
+                    if (currentDestination.route != it) {
+                        onNavigate(it)
+                    } else {
+                        scope.launch {
+                            scaffoldState.drawerState.close()
+                        }
+                    }
+                }
             )
         },
         content = content

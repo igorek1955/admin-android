@@ -86,14 +86,14 @@ class UsersRepositoryImpl(
 
     override suspend fun getUsersByEmail(email: String): Result<List<UserModel>> {
         val task = reference
-            .whereEqualTo(UserFields.EMAIL, email)
+            .whereGreaterThanOrEqualTo(UserFields.EMAIL, email)
             .get()
         return processUsersTask(task)
     }
 
     override suspend fun getUsersByName(name: String): Result<List<UserModel>> {
         val task = reference
-            .whereEqualTo(UserFields.NAME, name)
+            .whereGreaterThanOrEqualTo(UserFields.NAME, name)
             .get()
         return processUsersTask(task)
     }

@@ -24,6 +24,8 @@
     <string name="reason_fake">Fake</string>
     <string name="reason_scam">Scam</string>
     <string name="reason_inappropriate">Inappropriate</string>
+    <string name="reason_copyrights">Copyright violation</string>
+    <string name="other">Other</string>
 
     <!-- screens -->
     <string name="pending_listings">Pending review</string>

@@ -8,10 +8,12 @@ import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
 import com.jarlingwar.adminapp.data.firebase.ChatRepositoryImpl
 import com.jarlingwar.adminapp.data.firebase.ListingsRepositoryImpl
+import com.jarlingwar.adminapp.data.firebase.ReportRepositoryImpl
 import com.jarlingwar.adminapp.data.firebase.ReviewRepositoryImpl
 import com.jarlingwar.adminapp.data.firebase.UsersRepositoryImpl
 import com.jarlingwar.adminapp.domain.repositories.remote.IChatRepository
 import com.jarlingwar.adminapp.domain.repositories.remote.IListingsRepository
+import com.jarlingwar.adminapp.domain.repositories.remote.IReportRepository
 import com.jarlingwar.adminapp.domain.repositories.remote.IReviewRepository
 import com.jarlingwar.adminapp.domain.repositories.remote.IUsersRepository
 import com.jarlingwar.adminapp.utils.RemoteConfig
@@ -57,6 +59,12 @@ class AppModule {
     @Singleton
     fun provideReviewRepository(firestore: FirebaseFirestore): IReviewRepository {
         return ReviewRepositoryImpl(firestore)
+    }
+
+    @Provides
+    @Singleton
+    fun provideReportsRepository(firestore: FirebaseFirestore): IReportRepository {
+        return ReportRepositoryImpl(firestore)
     }
 
     @Provides

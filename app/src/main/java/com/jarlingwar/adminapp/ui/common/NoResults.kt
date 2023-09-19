@@ -29,7 +29,7 @@ fun NoResults() {
                 modifier = Modifier
                     .padding(top = 10.dp)
                     .padding(horizontal = 40.dp),
-                text = "Нет результатов =(",
+                text = "No results at the moment =(",
                 style = Type.Subtitle2,
                 textAlign = TextAlign.Center
             )
