@@ -203,7 +203,7 @@ fun ListingScreen(
                 text = viewModel.listing.title,
                 fontSize = (18 + (30 - 18) * progress).sp,
                 modifier = Modifier
-                    .padding(5.dp)
+                    .padding(3.dp)
                     .background(
                         MaterialTheme.adminColors.backgroundTertiary.copy(alpha = progress),
                         RoundedCornerShape(15.dp)
