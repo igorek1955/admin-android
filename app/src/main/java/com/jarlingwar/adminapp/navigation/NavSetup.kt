@@ -28,23 +28,16 @@ import com.jarlingwar.adminapp.ui.view_models.SharedViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 
 @Composable
-fun NavSetup(navController: NavHostController, startScreenControl: MutableStateFlow<Boolean?>) {
-    val destination = when (startScreenControl.collectAsState().value) {
-        null -> Destinations.Splash.route
-        true -> Destinations.Auth.route
-        false -> Destinations.PendingListings.route
-    }
+fun NavSetup(navController: NavHostController, isAuthRequired: MutableStateFlow<Boolean?>) {
     NavHost(
         navController = navController,
-        startDestination = destination,
-        enterTransition = { scaleIn() },
-        exitTransition = { scaleOut() },
-    ) {
-        composable(Destinations.Auth.route) {
-            AuthScreen { navController.navigate(Destinations.PendingListings.route) }
-        }
+        startDestination = Destinations.Splash.route
+        ) {
         composable(Destinations.Splash.route) {
             SplashScreen()
+        }
+        composable(Destinations.Auth.route) {
+            AuthScreen { navController.navigate(Destinations.PendingListings.route) }
         }
         composable(Destinations.Users.route) { it ->
             val sharedViewModel: SharedViewModel = it.sharedViewModel(navController)
@@ -113,6 +106,11 @@ fun NavSetup(navController: NavHostController, startScreenControl: MutableStateF
                 onNavigate =  { navController.navigate(it) }
             )
         }
+    }
+    when (isAuthRequired.collectAsState().value) {
+        true -> navController.navigate(Destinations.Auth.route)
+        false -> navController.navigate(Destinations.PendingListings.route)
+        null -> { }
     }
 }
 

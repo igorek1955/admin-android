@@ -96,7 +96,7 @@ private fun DrawerHeader(email: String, imgUrl: String) {
                     .padding(horizontal = 10.dp),
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                AdminIcon(size = 30.dp)
+                AppIcon(size = 30.dp)
                 Spacer(modifier = Modifier.width(5.dp))
                 Text(
                     text = stringResource(id = R.string.app_name),
@@ -138,7 +138,7 @@ private fun DrawerBody(selectedItem: DrawerItem, onNavigate: (String) -> Unit) {
                     Text(
                         text = stringResource(id = item.titleId),
                         style = Type.Subtitle2,
-                        color = MaterialTheme.adminColors.textPrimary
+                        color = if (isSelected) MaterialTheme.adminColors.textAltPrimary else MaterialTheme.adminColors.textPrimary
                     )
                 }
             }
@@ -194,7 +194,7 @@ fun DrawerScaffold(
 }
 
 @Composable
-fun AdminIcon(size: Dp) {
+private fun AppIcon(size: Dp) {
     Box(
         modifier = Modifier
             .size(size)

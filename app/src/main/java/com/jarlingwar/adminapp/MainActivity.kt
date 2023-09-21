@@ -6,11 +6,9 @@ import androidx.activity.compose.setContent
 import androidx.activity.viewModels
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
-import com.jarlingwar.adminapp.navigation.Destinations
 import com.jarlingwar.adminapp.navigation.NavSetup
 import com.jarlingwar.adminapp.ui.theme.AdminAppTheme
 import com.jarlingwar.adminapp.ui.view_models.MainViewModel
-import com.jarlingwar.adminapp.utils.observeAndAction
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
