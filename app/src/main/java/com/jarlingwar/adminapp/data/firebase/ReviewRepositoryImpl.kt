@@ -6,8 +6,10 @@ import com.google.firebase.firestore.DocumentSnapshot
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.Query
 import com.google.firebase.firestore.WriteBatch
+import com.google.firebase.firestore.ktx.snapshots
 import com.jarlingwar.adminapp.domain.models.ReviewModel
 import com.jarlingwar.adminapp.domain.repositories.remote.IReviewRepository
+import com.jarlingwar.adminapp.utils.CustomError
 import com.jarlingwar.adminapp.utils.FirestoreCollections
 import com.jarlingwar.adminapp.utils.ReportHandler
 import com.jarlingwar.adminapp.utils.ReviewFields
@@ -17,6 +19,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.mapNotNull
 import kotlinx.coroutines.tasks.await
 import kotlinx.coroutines.withContext
 import kotlin.coroutines.resume
@@ -25,6 +28,51 @@ import kotlin.coroutines.suspendCoroutine
 
 class ReviewRepositoryImpl(private val db: FirebaseFirestore) : IReviewRepository {
     private val reviews = db.collection(FirestoreCollections.REVIEWS)
+    override suspend fun approveReview(reviewId: String): Result<Unit> {
+        return withContext(Dispatchers.IO) {
+            try {
+                suspendCoroutine { continuation ->
+                    reviews
+                        .document(reviewId)
+                        .get()
+                        .addOnCompleteListener {
+                            val review = it.result.toObject(ReviewModel::class.java)
+                            if (review != null) {
+                                review.approved = true
+                                reviews
+                                    .document(reviewId)
+                                    .set(review)
+                                    .addOnCompleteListener {
+                                        continuation.resume(Result.success(Unit))
+                                    }
+                            } else {
+                                continuation.resume(Result.failure(CustomError.GeneralError.NoResults()))
+                            }
+                        }
+                    Result.success(Unit)
+                }
+            } catch (e: Exception) {
+                ReportHandler.reportError(e)
+                Result.failure(e)
+            }
+        }
+    }
+
+    override suspend fun deleteReview(reviewId: String): Result<Unit> {
+        return withContext(Dispatchers.IO) {
+            try {
+                reviews
+                    .document(reviewId)
+                    .delete()
+                    .await()
+                Result.success(Unit)
+            } catch (e: Exception) {
+                ReportHandler.reportError(e)
+                Result.failure(e)
+            }
+        }
+    }
+
     override suspend fun updateReview(reviewModel: ReviewModel): Result<Unit> {
         return withContext(Dispatchers.IO) {
             try {
@@ -54,7 +102,8 @@ class ReviewRepositoryImpl(private val db: FirebaseFirestore) : IReviewRepositor
                                 reviewModel?.let { reviews.add(it) }
                             }
                             continuation.resume(Result.success(reviews))
-                        }.addOnFailureListener { continuation.resume(Result.failure(it.toUnknown())) }
+                        }
+                        .addOnFailureListener { continuation.resume(Result.failure(it.toUnknown())) }
                 } catch (e: Exception) {
                     ReportHandler.reportError(e)
                     continuation.resume(Result.failure(e.toUnknown()))
@@ -62,7 +111,6 @@ class ReviewRepositoryImpl(private val db: FirebaseFirestore) : IReviewRepositor
             }
         }
     }
-
 
 
     override suspend fun deleteReviews(idList: List<String>): Result<Unit> {
@@ -133,13 +181,21 @@ class ReviewRepositoryImpl(private val db: FirebaseFirestore) : IReviewRepositor
                                 reviewModel?.let { reviews.add(it) }
                             }
                             continuation.resume(Result.success(reviews))
-                        }.addOnFailureListener { continuation.resume(Result.failure(it.toUnknown())) }
+                        }
+                        .addOnFailureListener { continuation.resume(Result.failure(it.toUnknown())) }
                 } catch (e: Exception) {
                     ReportHandler.reportError(e)
                     continuation.resume(Result.failure(e.toUnknown()))
                 }
             }
         }
+    }
+
+    override fun getReviewsAsFlow(): Flow<List<ReviewModel>> {
+        return reviews
+            .whereEqualTo(ReviewFields.APPROVED, false)
+            .snapshots()
+            .map { it.mapNotNull { doc -> doc.toObject(ReviewModel::class.java) } }
     }
 
     override fun getReviewsPaging(pagingReference: Flow<Int>): Flow<List<ReviewModel>> {

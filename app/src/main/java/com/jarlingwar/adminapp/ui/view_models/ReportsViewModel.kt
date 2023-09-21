@@ -43,11 +43,13 @@ class ReportsViewModel @Inject constructor(
     private var pager: Pager<ReportModel>? = null
 
     fun init() {
-        isLoading = true
-        viewModelScope.launch(Dispatchers.IO) {
-            userManager.userInfoFlow.collectLatest { currentUser = it }
+        if (pager == null) {
+            isLoading = true
+            viewModelScope.launch(Dispatchers.IO) {
+                userManager.userInfoFlow.collectLatest { currentUser = it }
+            }
+            startPaging()
         }
-        startPaging()
     }
 
     fun getListing(listingId: String) {
@@ -67,11 +69,26 @@ class ReportsViewModel @Inject constructor(
     }
 
     fun delete(report: ReportModel) {
-        viewModelScope.launch { repo.delete(report) }
+        viewModelScope.launch {
+            repo.delete(report)
+                .onSuccess {
+                    val updatedList = reports.toMutableList()
+                    updatedList.remove(report)
+                    reports = updatedList
+                }
+        }
     }
 
-    fun update(report: ReportModel) {
-        viewModelScope.launch { repo.update(report) }
+    fun approve(report: ReportModel) {
+        viewModelScope.launch {
+            report.processed = true
+            repo.update(report)
+                .onSuccess {
+                    val updatedList = reports.toMutableList()
+                    updatedList[reports.indexOf(report)] = report
+                    reports = updatedList
+                }
+        }
     }
 
     fun loadNext() {
@@ -92,6 +109,7 @@ class ReportsViewModel @Inject constructor(
                 override fun onError(t: Throwable) {
                     ReportHandler.reportError(t)
                     error = t.toUnknown()
+                    isLoading = false
                 }
 
                 override fun onLoadNext() {

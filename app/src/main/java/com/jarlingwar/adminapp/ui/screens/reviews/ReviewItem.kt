@@ -14,7 +14,6 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.Card
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Text
@@ -40,13 +39,16 @@ import com.jarlingwar.adminapp.ui.theme.adminColors
 import com.jarlingwar.adminapp.utils.getDateHyphen
 import kotlin.math.roundToInt
 
+
+
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
 fun ReviewItem(review: ReviewModel, onApprove: () -> Unit, onReject: () -> Unit) {
     SwipeCard(
         modifier = Modifier
+            .padding(vertical = 5.dp)
             .clickable(enabled = false, onClick = {})
-            .defaultMinSize(minHeight = 140.dp),
+            .defaultMinSize(minHeight = FixedDimens.minReviewCardHeight),
         elevation = 3.dp,
         shape = RoundedCornerShape(FixedDimens.cornerRadius),
         directions = setOf(RevealDirection.StartToEnd, RevealDirection.EndToStart),
@@ -108,6 +110,7 @@ fun ReviewItem(review: ReviewModel, onApprove: () -> Unit, onReject: () -> Unit)
         Column(
             Modifier
                 .clickable(false, onClick = {})
+                .defaultMinSize(minHeight = FixedDimens.minReviewCardHeight)
                 .background(
                     MaterialTheme.adminColors.backgroundPrimary,
                     RoundedCornerShape(FixedDimens.cornerRadius)

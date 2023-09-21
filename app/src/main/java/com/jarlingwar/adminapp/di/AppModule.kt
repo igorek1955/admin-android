@@ -8,11 +8,13 @@ import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
 import com.jarlingwar.adminapp.data.firebase.ChatRepositoryImpl
 import com.jarlingwar.adminapp.data.firebase.ListingsRepositoryImpl
+import com.jarlingwar.adminapp.data.firebase.NewListingsRepositoryImpl
 import com.jarlingwar.adminapp.data.firebase.ReportRepositoryImpl
 import com.jarlingwar.adminapp.data.firebase.ReviewRepositoryImpl
 import com.jarlingwar.adminapp.data.firebase.UsersRepositoryImpl
 import com.jarlingwar.adminapp.domain.repositories.remote.IChatRepository
 import com.jarlingwar.adminapp.domain.repositories.remote.IListingsRepository
+import com.jarlingwar.adminapp.domain.repositories.remote.INewListingsRepository
 import com.jarlingwar.adminapp.domain.repositories.remote.IReportRepository
 import com.jarlingwar.adminapp.domain.repositories.remote.IReviewRepository
 import com.jarlingwar.adminapp.domain.repositories.remote.IUsersRepository
@@ -53,6 +55,12 @@ class AppModule {
     @Singleton
     fun provideChatRepository(firestore: FirebaseFirestore): IChatRepository {
         return ChatRepositoryImpl(firestore)
+    }
+
+    @Provides
+    @Singleton
+    fun provideNewListingsRepository(firestore: FirebaseFirestore): INewListingsRepository {
+        return NewListingsRepositoryImpl(firestore)
     }
 
     @Provides

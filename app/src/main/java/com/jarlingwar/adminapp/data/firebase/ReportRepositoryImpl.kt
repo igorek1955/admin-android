@@ -5,6 +5,7 @@ import com.google.firebase.firestore.Query
 import com.jarlingwar.adminapp.domain.models.ReportModel
 import com.jarlingwar.adminapp.domain.repositories.remote.IReportRepository
 import com.jarlingwar.adminapp.utils.FirestoreCollections
+import com.jarlingwar.adminapp.utils.ReportFields
 import com.jarlingwar.adminapp.utils.ReportHandler
 import com.jarlingwar.adminapp.utils.ReviewFields
 import com.jarlingwar.adminapp.utils.paginate
@@ -18,7 +19,7 @@ class ReportRepositoryImpl(private val db: FirebaseFirestore): IReportRepository
     private val reports = db.collection(FirestoreCollections.REPORTS)
     override fun getReportsPaging(pagingReference: Flow<Int>): Flow<List<ReportModel>> {
         return reports
-            .orderBy(ReviewFields.CREATED, Query.Direction.DESCENDING)
+            .orderBy(ReportFields.LAST_REPORTED, Query.Direction.DESCENDING)
             .paginate(pagingReference, 50)
             .map { docs -> docs.mapNotNull { it.toObject(ReportModel::class.java) } }
     }

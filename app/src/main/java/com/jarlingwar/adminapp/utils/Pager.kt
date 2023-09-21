@@ -33,6 +33,7 @@ class Pager<T>(
             pagingFlow.invoke(pagingReference)
                 .catch { pager.onError(it) }
                 .collect {
+                    ReportHandler.logEvent("Pager results :$it")
                   if (it.isEmpty()) {
                       pager.onNoResults()
                   } else {

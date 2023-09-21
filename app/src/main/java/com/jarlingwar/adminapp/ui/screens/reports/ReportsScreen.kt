@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.heightIn
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.lazy.LazyColumn
@@ -50,7 +51,9 @@ fun ReportsScreen(
     onNavigateToUser: () -> Unit,
     onNavigate: (String) -> Unit
 ) {
-    LaunchedEffect(Unit) { viewModel.init() }
+    LaunchedEffect(Unit) {
+        viewModel.init()
+    }
     DrawerScaffold(
         currentUser = viewModel.currentUser,
         currentDestination = DrawerItem.REPORTS,
@@ -66,11 +69,15 @@ fun ReportsScreen(
                     .fillMaxWidth()
                     .paddingPrimaryStartEnd()
             ) {
-                LazyColumn(verticalArrangement = Arrangement.spacedBy(5.dp)) {
+                LazyColumn(
+                    verticalArrangement = Arrangement.spacedBy(5.dp),
+                    modifier = Modifier.padding(top = 10.dp)
+                ) {
                     itemsIndexed(items = reports, key = { _, item -> item.reportId }) { i, report ->
                         ReportItem(
                             reportModel = report,
                             onDelete = { viewModel.delete(report) },
+                            onApprove = { viewModel.approve(report) },
                             onItemClick = {
                                 if (report.isUser) {
                                     viewModel.getUser(report.reportedItemId)
@@ -95,11 +102,13 @@ fun ReportsScreen(
         viewModel.reportedListing?.let {
             sharedViewModel.selectedListing = it
             onNavigateToListing()
+            viewModel.reportedListing = null
         }
 
         viewModel.reportedUser?.let {
             sharedViewModel.selectedUser = it
             onNavigateToUser()
+            viewModel.reportedUser = null
         }
     }
 }
@@ -108,10 +117,12 @@ fun ReportsScreen(
 private fun ReportItem(
     reportModel: ReportModel,
     onDelete: (ReportModel) -> Unit,
+    onApprove: (ReportModel) -> Unit,
     onItemClick: () -> Unit
 ) {
     Card(
         Modifier
+            .padding(vertical = 3.dp)
             .heightIn(50.dp)
             .clickable { onItemClick() },
         shape = mainRoundedShape
@@ -138,11 +149,29 @@ private fun ReportItem(
                 Text(text = getDateHyphen(reportModel.lastReported), style = Type.Body2)
             }
             Box(modifier = Modifier.fillMaxWidth(), contentAlignment = Alignment.CenterEnd) {
-                IconButton(onClick = { onDelete(reportModel) }) {
-                    Image(
-                        painter = painterResource(id = R.drawable.ic_thumb_down),
-                        contentDescription = null
-                    )
+                Row {
+                    val iconColor =
+                        ColorFilter.tint(if (!reportModel.processed) MaterialTheme.adminColors.fillAltPrimary else MaterialTheme.adminColors.fillTertiary)
+                    IconButton(
+                        onClick = { onApprove(reportModel) },
+                        enabled = !reportModel.processed
+                    ) {
+                        Image(
+                            painter = painterResource(id = R.drawable.ic_thumb_up),
+                            colorFilter = iconColor,
+                            contentDescription = null
+                        )
+                    }
+                    IconButton(
+                        onClick = { onDelete(reportModel) },
+                        enabled = !reportModel.processed
+                    ) {
+                        Image(
+                            painter = painterResource(id = R.drawable.ic_thumb_down),
+                            colorFilter = iconColor,
+                            contentDescription = null
+                        )
+                    }
                 }
             }
         }
@@ -154,7 +183,7 @@ private fun ReportItem(
 private fun ReportPreview() {
     AdminAppTheme {
         val report = ReportModel.getMock()
-        ReportItem(reportModel = report, onDelete = {}) {
+        ReportItem(reportModel = report, onDelete = {}, onApprove = {}) {
 
         }
     }

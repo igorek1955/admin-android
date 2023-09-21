@@ -19,6 +19,7 @@ abstract class ColorPalette {
     open val textAltSecondary = Color(0xE9FFFFFF)
     open val fillPrimary = primary
     open val fillSecondary = secondary
+    open val fillTertiary = Color(0xCEA3A3A3)
     open val fillAltPrimary = Color(0x8F000000)
     open val fillAltSecondary = Color(0x1C000000)
     open val strokePrimary = Color(0x1C000000)
@@ -60,6 +61,7 @@ object DarkPalette : ColorPalette() {
     override val textAltSecondary = Color(0xFF1C1C1C)
     override val fillAltPrimary = Color(0x09000000)
     override val fillAltSecondary = Color(0xFFFFFFFF)
+    override val fillTertiary: Color = Color(0x48323232)
     override val strokePrimary = Color(0x1CFFFFFF)
     override val strokeSecondary = Color(0x13FFFFFF)
     override val strokeAltPrimary = Color(0x1C000000)

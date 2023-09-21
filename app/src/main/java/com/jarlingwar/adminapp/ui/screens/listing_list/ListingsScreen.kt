@@ -1,5 +1,10 @@
 package com.jarlingwar.adminapp.ui.screens.listing_list
 
+import android.Manifest
+import android.content.pm.PackageManager
+import android.os.Build
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -19,11 +24,17 @@ import androidx.compose.material.pullrefresh.pullRefresh
 import androidx.compose.material.pullrefresh.rememberPullRefreshState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.zIndex
+import androidx.core.content.ContextCompat
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.jarlingwar.adminapp.R
 import com.jarlingwar.adminapp.domain.models.SortOrder
@@ -32,6 +43,7 @@ import com.jarlingwar.adminapp.ui.common.DrawerScaffold
 import com.jarlingwar.adminapp.ui.common.DropDownTextMenu
 import com.jarlingwar.adminapp.ui.common.LoadingIndicator
 import com.jarlingwar.adminapp.ui.common.LoadingNextIndicator
+import com.jarlingwar.adminapp.ui.common.MySnack
 import com.jarlingwar.adminapp.ui.common.NoResults
 import com.jarlingwar.adminapp.ui.common.showSnack
 import com.jarlingwar.adminapp.ui.theme.adminColors
@@ -49,10 +61,33 @@ fun ListingsScreen(
     onNavigateToListing: () -> Unit,
     onNavigate: (String) -> Unit
 ) {
+
     val pullRefreshState = rememberPullRefreshState(viewModel.isRefreshing, { viewModel.refresh() })
+    var hasNotificationPermission by remember { mutableStateOf(true) }
+    var showNoPermSnackbar by remember { mutableStateOf(false) }
+
+    val ctx = LocalContext.current
+    val notificationPermLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.RequestPermission(),
+        onResult = { isGranted ->
+            if (!isGranted) {
+                hasNotificationPermission = false
+                showNoPermSnackbar = true
+            }
+        })
     LaunchedEffect(Unit) {
         viewModel.init(isPendingListings)
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            hasNotificationPermission = ContextCompat.checkSelfPermission(
+                ctx,
+                Manifest.permission.POST_NOTIFICATIONS
+            ) == PackageManager.PERMISSION_GRANTED
+            if (!hasNotificationPermission) {
+                notificationPermLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
+            }
+        }
     }
+
     val currentDestination = if (isPendingListings) DrawerItem.PENDING_LISTINGS
     else DrawerItem.PUBLISHED_LISTINGS
 
@@ -129,6 +164,9 @@ fun ListingsScreen(
                         LoadingIndicator()
                     }
                     viewModel.error?.showSnack { viewModel.error = null }
+                    if (showNoPermSnackbar) {
+                        MySnack(text = "Can't send notifications") { showNoPermSnackbar = false }
+                    }
                 }
             }
         }

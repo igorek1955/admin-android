@@ -5,10 +5,10 @@ import java.util.Random
 import java.util.UUID
 
 data class ReportModel(
-    var reportedItemId: String,
-    var reportAuthorId: String,
-    var reportId: String,
-    var reportReason: String,
+    var reportedItemId: String = "",
+    var reportAuthorId: String = "",
+    var reportId: String = "",
+    var reportReason: String = "",
     var isListing: Boolean = false,
     var isUser: Boolean = false,
     var processed: Boolean = false,

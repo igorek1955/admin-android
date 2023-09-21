@@ -35,7 +35,7 @@ class ReviewsViewModel @Inject constructor(
     var isLoadingNext by mutableStateOf(false)
     var isRefreshing by mutableStateOf(false)
     var currentUser by mutableStateOf<UserModel?>(null)
-    var showOnlyPendingReviews by mutableStateOf(false)
+    private var showOnlyPendingReviews = false
     private var pager: Pager<ReviewModel>? = null
 
     fun init(user: UserModel? = null, isPending: Boolean = false) {

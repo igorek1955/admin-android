@@ -9,6 +9,7 @@ import androidx.compose.ui.unit.dp
 
 object FixedDimens {
     val cornerRadius = 10.dp
+    val minReviewCardHeight = 140.dp
 }
 
 val mainRoundedShape = RoundedCornerShape(FixedDimens.cornerRadius)

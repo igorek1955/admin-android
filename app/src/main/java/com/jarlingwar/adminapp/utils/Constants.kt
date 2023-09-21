@@ -12,6 +12,7 @@ object FirestoreCollections {
     const val REVIEWS = "reviews"
     const val IMAGES = "images"
     const val REPORTS = "reports"
+    const val NOTIFICATIONS = "notifications"
 }
 
 object ChatFields {
@@ -25,10 +26,16 @@ object ChatFields {
 }
 
 object ReviewFields {
+    const val ID = "id"
     const val USER_ID = "userId"
     const val REVIEWER_ID = "reviewerId"
     const val CREATED = "created"
     const val APPROVED = "approved"
+}
+
+object ReportFields {
+    const val LAST_REPORTED = "lastReported"
+    const val PROCESSED = "processed"
 }
 
 object UserFields {
