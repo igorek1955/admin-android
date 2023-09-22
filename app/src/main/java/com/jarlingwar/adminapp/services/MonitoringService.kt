@@ -10,6 +10,7 @@ import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.graphics.drawable.BitmapDrawable
+import android.graphics.drawable.Icon
 import android.os.Build
 import android.os.IBinder
 import androidx.core.app.NotificationCompat
@@ -218,9 +219,15 @@ class MonitoringService : Service() {
             .data(imgUrl)
             .target(onSuccess = {
                 val bitmap = (it as BitmapDrawable).bitmap
+                val largeIcon: Icon? = null
                 val notification = builder
                     .setLargeIcon(bitmap)
-                    .setStyle(Notification.BigPictureStyle().bigPicture(bitmap))
+                    .setStyle(Notification
+                        .BigPictureStyle()
+                        .setSummaryText(listingModel.description)
+                        .bigPicture(bitmap)
+                        .bigLargeIcon(largeIcon)
+                    )
                     .build()
                 showNotification(notification)
             }, onError = { showNotification(builder.build()) })
@@ -236,7 +243,7 @@ class MonitoringService : Service() {
         val notification = Notification.Builder(this, MESSAGE_CHANNEL_ID)
             .setContentTitle(title)
             .setContentText(body)
-            .setSmallIcon(R.drawable.ic_pending)
+            .setSmallIcon(R.drawable.ic_app_launcher)
             .setStyle(
                 Notification.InboxStyle()
                     .setBigContentTitle(title)
