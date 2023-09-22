@@ -14,6 +14,7 @@ import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
+import com.jarlingwar.adminapp.domain.models.ListingModel
 import com.jarlingwar.adminapp.ui.common.SplashScreen
 import com.jarlingwar.adminapp.ui.screens.auth.AuthScreen
 import com.jarlingwar.adminapp.ui.screens.listing.ListingScreen
@@ -28,7 +29,11 @@ import com.jarlingwar.adminapp.ui.view_models.SharedViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 
 @Composable
-fun NavSetup(navController: NavHostController, isAuthRequired: MutableStateFlow<Boolean?>) {
+fun NavSetup(
+    navController: NavHostController,
+    isAuthRequired: MutableStateFlow<Boolean?>,
+    listingFromIntent: MutableStateFlow<ListingModel?>
+) {
     NavHost(
         navController = navController,
         startDestination = Destinations.Splash.route
@@ -107,10 +112,20 @@ fun NavSetup(navController: NavHostController, isAuthRequired: MutableStateFlow<
             )
         }
     }
+
     when (isAuthRequired.collectAsState().value) {
         true -> navController.navigate(Destinations.Auth.route)
         false -> navController.navigate(Destinations.PendingListings.route)
         null -> { }
+    }
+
+    val openListingOnNewIntent = listingFromIntent.collectAsState().value
+    if (openListingOnNewIntent != null) {
+        navController.currentBackStackEntry?.let {
+            val sharedViewModel: SharedViewModel = it.sharedViewModel(navController)
+            sharedViewModel.selectedListing = openListingOnNewIntent
+            navController.navigate(Destinations.Listing.route)
+        }
     }
 }
 

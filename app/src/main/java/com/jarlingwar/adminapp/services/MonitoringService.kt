@@ -41,7 +41,7 @@ import kotlinx.coroutines.launch
 import javax.inject.Inject
 import kotlin.random.Random
 
-enum class AlertType {
+enum class IntentType {
     NEW_LISTING,
     NEW_REVIEW
 }
@@ -62,18 +62,20 @@ class MonitoringService : Service() {
     lateinit var newListingsRepo: INewListingsRepository
 
     private val coroutineScope = CoroutineScope(Dispatchers.IO + SupervisorJob())
+    private val processedItems = arrayListOf<String>()
     private val sentNotifications = arrayListOf<NotificationModel>()
+    private var listingNotificationsNum = 0
+    private var reviewNotificationsNum = 0
 
     companion object {
         const val INTENT_TYPE = "intentType"
-
+        private const val SUMMARY_ID = 123456
         private const val CHANNEL_ID = "firebase monitoring service"
         private const val MESSAGE_CHANNEL_ID = "101"
         private const val MESSAGE_CHANNEL_NAME = "monitoringAlerts"
         private const val FOREGROUND_MSG_CONTENT = "firebase monitoring service is active"
         private const val FOREGROUND_MSG_TITLE = "Monitoring service"
-        private const val LISTINGS_GROUP = "listings"
-        private const val REVIEWS_GROUP = "review"
+        private const val PENDING_GROUP = "pendings"
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
@@ -130,6 +132,8 @@ class MonitoringService : Service() {
     }
 
     private fun sendNotification(reviewModel: ReviewModel) {
+        if (processedItems.contains(reviewModel.id)) return
+        else processedItems.add(reviewModel.id)
         val title = "Review approval required"
         val body =
             "${reviewModel.reviewerName} ${reviewModel.rating} ${reviewModel.body}"
@@ -161,7 +165,7 @@ class MonitoringService : Service() {
             .setActions(approveAction, rejectAction)
             .setOnlyAlertOnce(true)
             .setContentIntent(pi)
-            .setGroup(REVIEWS_GROUP)
+            .setGroup(PENDING_GROUP)
             .setAutoCancel(true)
 
         val request = ImageRequest.Builder(this)
@@ -176,13 +180,17 @@ class MonitoringService : Service() {
             }, onError = { showNotification(builder.build()) })
             .build()
         ImageLoader(this).enqueue(request)
+        reviewNotificationsNum++
+        groupMessages()
     }
 
 
     private fun sendNotification(listingModel: ListingModel) {
+        if (processedItems.contains(listingModel.listingId)) return
+        else processedItems.add(listingModel.listingId)
         val title = "Listing approval required"
         val body =
-            "${listingModel.title} ${listingModel.price} ${listingModel.location?.locationName}"
+            "${listingModel.title} price: ${listingModel.price} , location:${listingModel.location?.locationName}"
         val imgUrl = listingModel.remoteImgUrlList.firstOrNull() ?: ""
         ImageRequest.Builder(this)
             .data(imgUrl)
@@ -204,9 +212,8 @@ class MonitoringService : Service() {
             .setActions(approveAction)
             .setOnlyAlertOnce(true)
             .setContentIntent(pi)
-            .setGroup(LISTINGS_GROUP)
+            .setGroup(PENDING_GROUP)
             .setAutoCancel(true)
-
         val request = ImageRequest.Builder(this)
             .data(imgUrl)
             .target(onSuccess = {
@@ -219,6 +226,26 @@ class MonitoringService : Service() {
             }, onError = { showNotification(builder.build()) })
             .build()
         ImageLoader(this).enqueue(request)
+        listingNotificationsNum++
+        groupMessages()
+    }
+
+    private fun groupMessages() {
+        val title = "Unprocessed items: ${reviewNotificationsNum + listingNotificationsNum}"
+        val body = "Listings: $listingNotificationsNum , Reviews: $reviewNotificationsNum"
+        val notification = Notification.Builder(this, MESSAGE_CHANNEL_ID)
+            .setContentTitle(title)
+            .setContentText(body)
+            .setSmallIcon(R.drawable.ic_pending)
+            .setStyle(
+                Notification.InboxStyle()
+                    .setBigContentTitle(title)
+                    .setSummaryText(body)
+            )
+            .setGroup(PENDING_GROUP)
+            .setGroupSummary(true)
+            .build()
+        showNotification(notification, SUMMARY_ID)
     }
 
     private fun getReceiverIntent(
@@ -232,12 +259,11 @@ class MonitoringService : Service() {
         return PendingIntent.getBroadcast(this, intentCode, intent, PendingIntent.FLAG_MUTABLE)
     }
 
-    private fun showNotification(notification: Notification) {
+    private fun showNotification(notification: Notification, notificationId: Int = Random.nextInt()) {
         val hasNotificationPerm = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
             applicationContext.checkSelfPermission(Manifest.permission.POST_NOTIFICATIONS) == PackageManager.PERMISSION_GRANTED
         } else true
         if (hasNotificationPerm) {
-            val notificationId = Random.nextInt()
             NotificationManagerCompat.from(this).notify(notificationId, notification)
         }
     }
@@ -274,14 +300,14 @@ class MonitoringService : Service() {
 
     private fun getIntentData(listingModel: ListingModel): Map<String, String> {
         return mapOf(
-            INTENT_TYPE to AlertType.NEW_LISTING.name,
+            INTENT_TYPE to IntentType.NEW_LISTING.name,
             ListingFields.ID to listingModel.listingId
         )
     }
 
     private fun getIntentData(reviewModel: ReviewModel): Map<String, String> {
         return mapOf(
-            INTENT_TYPE to AlertType.NEW_REVIEW.name,
+            INTENT_TYPE to IntentType.NEW_REVIEW.name,
             ReviewFields.ID to reviewModel.id
         )
     }
@@ -291,9 +317,10 @@ class MonitoringService : Service() {
             flags = Intent.FLAG_ACTIVITY_SINGLE_TOP
             data.forEach { (key, value) -> putExtra(key, value) }
         }
+        val requestCode = Random.nextInt()
         return PendingIntent.getActivity(
             context,
-            0,
+            requestCode,
             resultIntent,
             PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
         )

@@ -12,6 +12,7 @@ import com.jarlingwar.adminapp.utils.ReportHandler
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.tasks.await
 import kotlinx.coroutines.withContext
 import kotlin.coroutines.resume
 import kotlin.coroutines.suspendCoroutine
@@ -56,6 +57,20 @@ class NewListingsRepositoryImpl(db: FirebaseFirestore) : INewListingsRepository 
                             }
                         }
                 }
+            } catch (e: Exception) {
+                ReportHandler.reportError(e)
+                Result.failure(e)
+            }
+        }
+    }
+
+    override suspend fun getListing(id: String): Result<ListingModel> {
+        return withContext(Dispatchers.IO) {
+            try {
+                val doc = listings.document(id).get().await()
+                val listing = doc.toObject(ListingModel::class.java)
+                if (listing != null) Result.success(listing)
+                else Result.failure(CustomError.ListingError.ListingNotFound())
             } catch (e: Exception) {
                 ReportHandler.reportError(e)
                 Result.failure(e)
