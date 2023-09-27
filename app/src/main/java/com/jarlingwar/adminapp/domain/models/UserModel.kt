@@ -8,7 +8,6 @@ import kotlinx.parcelize.Parcelize
 data class UserModel(
     val userId: String = "",
     var email: String = "",
-    var phone: String = "",
     var displayName: String = "",
     var about: String = "",
     var blocked: Boolean = false,
@@ -34,7 +33,6 @@ data class UserModel(
                 userId = "fsdafdsf12332",
                 email = "yandex@test.ru",
                 displayName = "Petr Petrovich",
-                phone = "232322111",
                 about = "my name is pupa and i shave my zalupa",
                 verified = true,
                 created = System.currentTimeMillis() - 1_000_000_000,
