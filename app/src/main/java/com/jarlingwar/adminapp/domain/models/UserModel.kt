@@ -11,6 +11,7 @@ data class UserModel(
     var displayName: String = "",
     var about: String = "",
     var blocked: Boolean = false,
+    var blockedUsers: List<String> = listOf(),
     var verified: Boolean = false,
     var anonymous: Boolean = false,
     var online: Boolean = false,

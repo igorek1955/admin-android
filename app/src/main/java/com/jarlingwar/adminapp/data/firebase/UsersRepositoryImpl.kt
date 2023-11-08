@@ -4,7 +4,7 @@ import com.google.android.gms.tasks.Task
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.QuerySnapshot
-import com.jarlingwar.adminapp.domain.models.BlockedUser
+import com.jarlingwar.adminapp.domain.models.RemovedUser
 import com.jarlingwar.adminapp.domain.models.UserModel
 import com.jarlingwar.adminapp.domain.models.UsersQueryParams
 import com.jarlingwar.adminapp.domain.repositories.remote.DeleteUserResponse
@@ -156,7 +156,7 @@ class UsersRepositoryImpl(
             .map { docs -> docs.mapNotNull { it.toObject(UserModel::class.java) } }
     }
 
-    override suspend fun blockUser(user: BlockedUser): Result<Boolean> {
+    override suspend fun blockUser(user: RemovedUser): Result<Boolean> {
         return try {
             blockedRef
                 .document(user.userId)
@@ -171,7 +171,7 @@ class UsersRepositoryImpl(
 
     override suspend fun getBlockStatus(id: String): Result<Boolean> {
         return try {
-            val user = blockedRef.document(id).get().await().toObject(BlockedUser::class.java)
+            val user = blockedRef.document(id).get().await().toObject(RemovedUser::class.java)
             Result.success(user != null)
         } catch (e: Exception) {
             ReportHandler.reportError(e)

@@ -10,7 +10,7 @@ import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.GoogleAuthProvider
 import com.google.firebase.auth.UserProfileChangeRequest
 import com.google.firebase.messaging.FirebaseMessaging
-import com.jarlingwar.adminapp.domain.models.BlockedUser
+import com.jarlingwar.adminapp.domain.models.RemovedUser
 import com.jarlingwar.adminapp.domain.models.UserModel
 import com.jarlingwar.adminapp.domain.models.UsersQueryParams
 import com.jarlingwar.adminapp.domain.repositories.remote.IUsersRepository
@@ -230,7 +230,7 @@ class UserManager @Inject constructor(
     }
 
     override suspend fun blockUser(id: String, email: String) : Result<Boolean> {
-        val blockedUser = BlockedUser(id, email, System.currentTimeMillis())
+        val blockedUser = RemovedUser(id, email, System.currentTimeMillis(), true)
         return remoteStorage.blockUser(blockedUser)
     }
     override suspend fun getBlockStatus(id: String) = remoteStorage.getBlockStatus(id)
