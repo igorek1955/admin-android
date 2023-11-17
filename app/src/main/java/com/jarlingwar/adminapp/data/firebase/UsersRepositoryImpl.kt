@@ -30,6 +30,7 @@ class UsersRepositoryImpl(
 ) : IUsersRepository {
     private val reference = firestore.collection(FirestoreCollections.USERS)
     private val blockedRef = firestore.collection(FirestoreCollections.BLOCKED_USERS)
+    private val deletedRef = firestore.collection(FirestoreCollections.DELETED_USERS)
     private var params: UsersQueryParams = UsersQueryParams()
     override fun updateParams(queryParams: UsersQueryParams) { params.update(queryParams) }
     override fun getParams() = params
@@ -52,6 +53,11 @@ class UsersRepositoryImpl(
             reference
                 .document(userModel.userId)
                 .delete()
+                .await()
+            val deleteData = RemovedUser(userModel.userId, userModel.email, System.currentTimeMillis())
+            deletedRef
+                .document(userModel.email)
+                .set(deleteData)
                 .await()
             Result.success(true)
         } catch (e: Exception) {

@@ -59,7 +59,8 @@ object DarkPalette : ColorPalette() {
     override val textSecondary = Color(0xE8C6BFBF)
     override val textAltPrimary = Color(0xFF1C1C1C)
     override val textAltSecondary = Color(0xFF1C1C1C)
-    override val fillAltPrimary = Color(0x09000000)
+    override val textTertiary = Color(0xA1F0E9E9)
+    override val fillAltPrimary = Color(0xC5F1ECEC)
     override val fillAltSecondary = Color(0xFFFFFFFF)
     override val fillTertiary: Color = Color(0x48323232)
     override val strokePrimary = Color(0x1CFFFFFF)
@@ -69,7 +70,7 @@ object DarkPalette : ColorPalette() {
     override val backgroundPrimary = Color(0xFF1C1C1C)
     override val backgroundSecondary = Color(0xFF252525)
     override val backgroundTertiary = Color(0x87252222)
-    override val backgroundAltPrimary = Color(0xFFFFFFFF)
+    override val backgroundAltPrimary = Color(0x6DFAF9F9)
     override val backgroundAltSecondary = Color(0xFFF8F8F8)
     override val material: Colors
         get() = Colors(

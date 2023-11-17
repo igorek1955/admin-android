@@ -20,6 +20,7 @@ import com.jarlingwar.adminapp.utils.geo.geohash.GeoHash
 import com.jarlingwar.adminapp.utils.toUnknown
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.async
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -40,6 +41,7 @@ class UserViewModel @Inject constructor(
     var isDeleteSuccess by mutableStateOf(false)
     var isUserBlocked by mutableStateOf(false)
     var userData by mutableStateOf(UserViewData())
+    var deleteLogs by mutableStateOf("")
 
     fun init(user: UserModel) {
         userData = userData.copy(userModel = user)
@@ -55,7 +57,7 @@ class UserViewModel @Inject constructor(
             reviewRepo.getUserAuthoredReviews(user.userId)
                 .onSuccess { userData = userData.copy(ratingsPublished = it.size.toString()) }
 
-            listingManager.getListings(user.listingsId)
+            listingManager.getUserListings(user)
                 .onSuccess { results ->
                     val countries = results.mapNotNull { listing -> listing.location?.country }.distinct()
                     userData = userData.copy(usedLocations = countries)
@@ -83,6 +85,7 @@ class UserViewModel @Inject constructor(
                     isLoading = false
                     isUserBlocked = true
                 }
+                .onFailure { isLoading = false }
         }
     }
 
@@ -94,21 +97,37 @@ class UserViewModel @Inject constructor(
                     isLoading = false
                     isUserBlocked = false
                 }
+                .onFailure {
+                    isLoading = false
+                    error = it.toUnknown()
+                }
         }
     }
 
-    //delete
     fun deleteUserData() {
         isLoading = true
         viewModelScope.launch(Dispatchers.IO) {
+            var deleteLogs = ""
             val user = userData.userModel
-            val t1 = listingManager.deleteListings(user.listingsId).getOrNull()
-            if (t1 == null) error = CustomError.GeneralError.Unknown(message = "Unable to delete listings")
-            val t2 = reviewRepo.deleteUserReviews(user.userId).getOrNull()
-            if (t2 == null) error = CustomError.GeneralError.Unknown(message = "Unable to delete review")
+            val imagesJob = async { listingManager.deleteUserImages(user.userId) }
+            val listingsJob = async { listingManager.deleteListings(listings, false) }
+            val reviewsJob = async { reviewRepo.deleteUserReviews(user.userId) }
+            val chatDataJob = async { chatRepo.deleteUserData(user.userId) }
+            listingsJob.await().onFailure { deleteLogs += it.message + "\n" }
+            imagesJob.await().onFailure { deleteLogs += it.message + "\n" }
+            reviewsJob.await().onFailure { deleteLogs += it.message + "\n" }
+            chatDataJob.await().onFailure { deleteLogs += it.message + "\n" }
             userManager.deleteUser(user)
-                .onSuccess { isDeleteSuccess = true }
-                .onFailure { error = it.toUnknown() }
+                .onSuccess {
+                    isLoading = false
+                    isDeleteSuccess = true
+                    this@UserViewModel.deleteLogs = deleteLogs
+                }
+                .onFailure {
+                    isLoading = false
+                    deleteLogs += it.message
+                    this@UserViewModel.deleteLogs = deleteLogs
+                }
         }
     }
 
@@ -116,7 +135,7 @@ class UserViewModel @Inject constructor(
         isLoading = true
         viewModelScope.launch(Dispatchers.IO) {
             val u = userData.userModel.copy(verified = true)
-            userManager.saveUser(u)
+            userManager.saveUser(u, false)
                 .onSuccess {
                     isLoading = false
                     userData = userData.copy(userModel = u)
@@ -131,19 +150,16 @@ class UserViewModel @Inject constructor(
     private fun loadListings() {
         isLoading = true
         viewModelScope.launch(Dispatchers.IO) {
-            val listingIds = userData.userModel.listingsId
-            if (listingIds.isNotEmpty()) {
-                listingManager.getListings(listingIds)
-                    .onSuccess {
-                        isLoading = false
-                        listings = it
-                        isNoResults = listings.isEmpty()
-                    }
-                    .onFailure {
-                        isLoading = false
-                        error = it.toUnknown()
-                    }
-            }
+            listingManager.getUserListings(userData.userModel)
+                .onSuccess {
+                    isLoading = false
+                    listings = it
+                    isNoResults = listings.isEmpty()
+                }
+                .onFailure {
+                    isLoading = false
+                    error = it.toUnknown()
+                }
         }
     }
 }

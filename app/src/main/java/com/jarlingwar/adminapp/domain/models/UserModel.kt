@@ -25,7 +25,7 @@ data class UserModel(
     var geoHash: String = "",
     var interests: List<String> = emptyList(),
     var favorites: List<String> = emptyList(),
-    var listingsId: List<String> = emptyList(),
+    var publishedListings: Int = 0,
     var reviews: List<Float> = emptyList()
 ): Parcelable {
     companion object {
@@ -41,7 +41,7 @@ data class UserModel(
                 lastSessionTime = System.currentTimeMillis(),
                 profileImageUrl = "https://api.dicebear.com/6.x/micah/jpg?size=130&seed=1faff",
                 reviews = listOf(1.2f, 4.2f, 5f, 4f),
-                listingsId = listOf("2","3"),
+                publishedListings = 2,
                 favorites = listOf("432", "421ff"),
                 geoHash = "ucfv0n014x7c",
                 reports = 2323

@@ -8,6 +8,8 @@ object FirestoreCollections {
     const val USERS = "users"
     const val LISTINGS = "listings"
     const val BLOCKED_USERS = "blockedUsers"
+    const val DELETED_USERS = "deletedUsers"
+    const val MESSAGES = "messages"
     const val CHANNELS = "channels"
     const val REVIEWS = "reviews"
     const val IMAGES = "images"
@@ -23,6 +25,11 @@ object ChatFields {
     const val CHANNEL_ID = "channelId"
     const val MESSAGE_IS_SEEN = "seen"
     const val MESSAGE_DELETED_BY = "deletedByUser"
+}
+
+object NotificationFields {
+    const val RECEIVER_ID = "receiverId"
+    const val SENDER_ID = "senderId"
 }
 
 object ReviewFields {
@@ -65,6 +72,7 @@ object ListingFields {
     const val COUNTRY = "location.country"
     const val COUNTRY_PART = "location.countryPart"
     const val CREATED = "created"
+    const val UPDATED = "updated"
     const val REACTIONS = "reactions"
     const val CATEGORY = "category"
     const val PRICE = "price"

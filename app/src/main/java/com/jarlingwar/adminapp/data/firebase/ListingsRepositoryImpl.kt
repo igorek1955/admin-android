@@ -5,6 +5,7 @@ import com.google.android.gms.tasks.Tasks
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.Query
 import com.google.firebase.firestore.QuerySnapshot
+import com.google.firebase.firestore.WriteBatch
 import com.jarlingwar.adminapp.domain.models.ListingModel
 import com.jarlingwar.adminapp.domain.models.ListingStatus
 import com.jarlingwar.adminapp.domain.models.ListingsQueryParams
@@ -25,7 +26,10 @@ import kotlinx.coroutines.tasks.await
 import kotlin.coroutines.resume
 import kotlin.coroutines.suspendCoroutine
 
-class ListingsRepositoryImpl(private val remoteConfig: RemoteConfig, db: FirebaseFirestore) :
+class ListingsRepositoryImpl(
+    private val remoteConfig: RemoteConfig,
+    private val db: FirebaseFirestore
+) :
     IListingsRepository {
     private var listings = db.collection(FirestoreCollections.LISTINGS)
     private var params: ListingsQueryParams = ListingsQueryParams()
@@ -34,7 +38,19 @@ class ListingsRepositoryImpl(private val remoteConfig: RemoteConfig, db: Firebas
     override fun updateParams(queryParams: ListingsQueryParams) {
         params.update(queryParams)
     }
+
     override fun getParams() = params
+    override suspend fun getPubListingsByDate(updateTime: Long): Result<List<ListingModel>> {
+        val query = listings
+            .whereEqualTo(ListingFields.APPROVED, true)
+            .whereEqualTo(ListingFields.STATUS, ListingStatus.PUBLISHED)
+            .whereLessThan(ListingFields.UPDATED, updateTime)
+        return processQuery(
+            query,
+            primaryOrder = SortOrder.CREATED_DESC,
+            ignoreSecondaryOrder = true
+        )
+    }
 
     override suspend fun saveListing(listing: ListingModel): SaveListingResponse {
         return try {
@@ -45,6 +61,22 @@ class ListingsRepositoryImpl(private val remoteConfig: RemoteConfig, db: Firebas
             Result.success(true)
         } catch (e: Exception) {
             Result.failure(e)
+        }
+    }
+
+    override suspend fun saveListings(listingsList: List<ListingModel>): SaveListingResponse {
+        return suspendCoroutine { c ->
+            try {
+                val writeBatch: WriteBatch = db.batch()
+                listingsList.forEach { listing ->
+                    writeBatch.set(listings.document(listing.listingId), listing)
+                }
+                writeBatch.commit()
+                    .addOnSuccessListener { c.resume(Result.success(true)) }
+                    .addOnFailureListener { c.resume(Result.failure(it)) }
+            } catch (e: Exception) {
+                c.resume(Result.failure(e))
+            }
         }
     }
 
@@ -104,12 +136,20 @@ class ListingsRepositoryImpl(private val remoteConfig: RemoteConfig, db: Firebas
             }
         }
         val query = listings.whereIn(ListingFields.ID, idList)
-        return processQuery(query, primaryOrder = SortOrder.CREATED_DESC, ignoreSecondaryOrder = true)
+        return processQuery(
+            query,
+            primaryOrder = SortOrder.CREATED_DESC,
+            ignoreSecondaryOrder = true
+        )
     }
 
     override suspend fun getListingsByUserId(userId: String): Result<List<ListingModel>> {
         val query = listings.whereEqualTo(ListingFields.USER_ID, userId)
-        return processQuery(query, primaryOrder = SortOrder.CREATED_DESC, ignoreSecondaryOrder = true)
+        return processQuery(
+            query,
+            primaryOrder = SortOrder.CREATED_DESC,
+            ignoreSecondaryOrder = true
+        )
     }
 
     override fun getPublishedListingsPaging(pagingReference: Flow<Int>): Flow<List<ListingModel?>> {
@@ -136,17 +176,22 @@ class ListingsRepositoryImpl(private val remoteConfig: RemoteConfig, db: Firebas
         query: Query,
         pagingStartVal: Flow<Int>,
         primaryOrder: SortOrder? = null
-    ):Flow<List<ListingModel?>> {
+    ): Flow<List<ListingModel?>> {
         val orderedQuery = getOrderedQuery(query, primaryOrder, false)
         return orderedQuery
             .paginate(pagingStartVal, remoteConfig.paginationLimit)
             .map { docs -> docs.map { it.toObject(ListingModel::class.java) } }
     }
 
-    private fun getOrderedQuery(query: Query, primaryOrder: SortOrder?, ignoreSecondaryOrder: Boolean): Query {
+    private fun getOrderedQuery(
+        query: Query,
+        primaryOrder: SortOrder?,
+        ignoreSecondaryOrder: Boolean
+    ): Query {
         var orderedQuery = query
         if (ignoreSecondaryOrder) {
-            if (primaryOrder != null) orderedQuery = query.orderBy(primaryOrder.fieldName, primaryOrder.direction)
+            if (primaryOrder != null) orderedQuery =
+                query.orderBy(primaryOrder.fieldName, primaryOrder.direction)
         } else {
             val secondaryOrder = preferredOrder
             orderedQuery = if (primaryOrder?.fieldName == secondaryOrder.fieldName) {

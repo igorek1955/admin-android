@@ -36,7 +36,7 @@ interface IUserManager {
     suspend fun authenticateGoogle(data: Intent): UserResponse
     suspend fun changePassword(oldPassword: String, newPassword: String): Result<Boolean>
     suspend fun saveNewUser(userModel: UserModel): Result<Boolean>
-    suspend fun saveUser(userModel: UserModel): Result<Boolean>
+    suspend fun saveUser(userModel: UserModel, isCurrentUser: Boolean = true): Result<Boolean>
     suspend fun getUserById(userId: String): UserResponse
     suspend fun getUsersByEmail(email: String): Result<List<UserModel>>
     suspend fun getUsersByName(name: String): Result<List<UserModel>>
@@ -165,12 +165,15 @@ class UserManager @Inject constructor(
     /**
      * 1 - setting user.updated
      * 2 - saving user to firebase remote database
+     * @param isCurrentUser - current app user (admin)
      */
-    override suspend fun saveUser(userModel: UserModel): Result<Boolean> {
+    override suspend fun saveUser(userModel: UserModel, isCurrentUser: Boolean): Result<Boolean> {
         return withContext(Dispatchers.IO) {
             try {
                 val updatedUser = userModel.copy(updated = System.currentTimeMillis())
-                userInfoFlow.update { updatedUser }
+                if (isCurrentUser) {
+                    userInfoFlow.update { updatedUser }
+                }
                 remoteStorage.saveUser(updatedUser)
             } catch (e: Exception) {
                 ReportHandler.reportError(e)

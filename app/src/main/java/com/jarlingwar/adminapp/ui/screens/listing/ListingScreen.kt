@@ -46,6 +46,7 @@ import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -201,6 +202,9 @@ fun ListingScreen(
             }
             Text(
                 text = viewModel.listing.title,
+                color = MaterialTheme.adminColors.textPrimary,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis,
                 fontSize = (18 + (30 - 18) * progress).sp,
                 modifier = Modifier
                     .padding(3.dp)
@@ -241,7 +245,10 @@ fun ListingScreen(
         MySnack(text) { viewModel.error = null }
     }
 
-    if (showRejectDialog) RejectDialog(onApply = { viewModel.reject(it) }) {
+    if (showRejectDialog) RejectDialog(onApply = {
+        showRejectDialog = false
+        viewModel.reject(it)
+    }) {
         showRejectDialog = false
     }
     if (viewModel.isSuccess) MySnack(stringResource(R.string.action_success)) {
@@ -277,7 +284,11 @@ private fun RejectDialog(onApply: (RejectReason) -> Unit, onDismissAction: () ->
                     .padding(vertical = 10.dp),
                 horizontalArrangement = Arrangement.Center
             ) {
-                Text(text = stringResource(R.string.reason), style = Type.Subtitle2M)
+                Text(
+                    text = stringResource(R.string.reason),
+                    style = Type.Subtitle2M,
+                    color = MaterialTheme.adminColors.textPrimary
+                )
             }
             reasons.forEach { reason ->
                 Row(
@@ -291,7 +302,8 @@ private fun RejectDialog(onApply: (RejectReason) -> Unit, onDismissAction: () ->
                     )
                     Text(
                         text = stringResource(id = reason.resId),
-                        modifier = Modifier.padding(start = 8.dp)
+                        modifier = Modifier.padding(start = 8.dp),
+                        color = MaterialTheme.adminColors.textPrimary
                     )
                 }
             }
@@ -352,7 +364,8 @@ private fun ListingBody(
     ) {
         Text(
             text = "${listing.price}${listing.location.getCurrency()}",
-            style = Type.Header2
+            style = Type.Header2,
+            color = MaterialTheme.adminColors.textPrimary
         )
         Divider(
             Modifier
@@ -382,10 +395,15 @@ private fun ListingBody(
         Row(Modifier.padding(vertical = 10.dp)) {
             Text(
                 text = listing.status.name.capitalized(),
-                style = Type.Subtitle2M
+                style = Type.Subtitle2M,
+                color = MaterialTheme.adminColors.textPrimary
             )
             if (listing.status == ListingStatus.REJECTED) {
-                Text(modifier = Modifier.padding(start = 10.dp), text = "${listing.rejectReason}")
+                Text(
+                    modifier = Modifier.padding(start = 10.dp),
+                    text = "${listing.rejectReason}",
+                    color = MaterialTheme.adminColors.textPrimary
+                )
             }
         }
 
@@ -406,7 +424,11 @@ private fun ListingBody(
                 color = MaterialTheme.adminColors.textSecondary
             )
         }
-        Text(text = listing.contactInfo, style = Type.Body1)
+        Text(
+            text = listing.contactInfo,
+            style = Type.Body1,
+            color = MaterialTheme.adminColors.textPrimary
+        )
         Spacer(modifier = Modifier.height(10.dp))
         Divider()
 
@@ -420,7 +442,11 @@ private fun ListingBody(
                 color = MaterialTheme.adminColors.textSecondary
             )
         }
-        Text(text = listing.description, style = Type.Body1)
+        Text(
+            text = listing.description,
+            style = Type.Body1,
+            color = MaterialTheme.adminColors.textPrimary
+        )
         Spacer(modifier = Modifier.height(10.dp))
         Divider()
 
@@ -436,7 +462,8 @@ private fun ListingBody(
         }
         Text(
             text = "${listing.location?.locationName} ${listing.location?.geoHash}",
-            style = Type.Body1
+            style = Type.Body1,
+            color = MaterialTheme.adminColors.textPrimary
         )
         Spacer(modifier = Modifier.height(10.dp))
         Divider()
@@ -452,7 +479,11 @@ private fun ListingBody(
                 style = Type.Body1,
                 color = MaterialTheme.adminColors.textSecondary
             )
-            Text(text = listing.category.toString(), style = Type.Body1)
+            Text(
+                text = listing.category.toString(),
+                style = Type.Body1,
+                color = MaterialTheme.adminColors.textPrimary
+            )
         }
         Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
             Text(
@@ -460,7 +491,11 @@ private fun ListingBody(
                 style = Type.Body1,
                 color = MaterialTheme.adminColors.textSecondary
             )
-            Text(text = getDateHyphen(listing.created), style = Type.Body1)
+            Text(
+                text = getDateHyphen(listing.created),
+                style = Type.Body1,
+                color = MaterialTheme.adminColors.textPrimary
+            )
         }
         Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
             Text(
@@ -468,7 +503,11 @@ private fun ListingBody(
                 style = Type.Body1,
                 color = MaterialTheme.adminColors.textSecondary
             )
-            Text(text = getDateHyphen(listing.updated), style = Type.Body1)
+            Text(
+                text = getDateHyphen(listing.updated),
+                style = Type.Body1,
+                color = MaterialTheme.adminColors.textPrimary
+            )
         }
         Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
             Text(
@@ -476,7 +515,11 @@ private fun ListingBody(
                 style = Type.Body1,
                 color = MaterialTheme.adminColors.textSecondary
             )
-            Text(text = listing.views.toString(), style = Type.Body1)
+            Text(
+                text = listing.views.toString(),
+                style = Type.Body1,
+                color = MaterialTheme.adminColors.textPrimary
+            )
         }
         Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
             Text(
@@ -484,7 +527,11 @@ private fun ListingBody(
                 style = Type.Body1,
                 color = MaterialTheme.adminColors.textSecondary
             )
-            Text(text = listing.reactions.toString(), style = Type.Body1)
+            Text(
+                text = listing.reactions.toString(),
+                style = Type.Body1,
+                color = MaterialTheme.adminColors.textPrimary
+            )
         }
         Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
             Text(
@@ -492,7 +539,11 @@ private fun ListingBody(
                 style = Type.Body1,
                 color = MaterialTheme.adminColors.textSecondary
             )
-            Text(text = listing.reports.toString(), style = Type.Body1)
+            Text(
+                text = listing.reports.toString(),
+                style = Type.Body1,
+                color = MaterialTheme.adminColors.textPrimary
+            )
         }
         var showRawData by remember { mutableStateOf(false) }
         val rotation by animateFloatAsState(targetValue = if (showRawData) 180f else 0f, label = "")
@@ -500,6 +551,7 @@ private fun ListingBody(
             Button(
                 modifier = Modifier
                     .padding(top = 10.dp)
+                    .background(MaterialTheme.adminColors.backgroundSecondary)
                     .fillMaxWidth(),
                 onClick = { showRawData = !showRawData }) {
                 Image(
@@ -514,7 +566,8 @@ private fun ListingBody(
                         if (!showRawData) R.string.show_raw_data
                         else R.string.hide_raw_data
                     ),
-                    style = Type.Subtitle2M
+                    style = Type.Subtitle2M,
+                    color = MaterialTheme.adminColors.textAltPrimary
                 )
             }
             AnimatedVisibility(
@@ -522,7 +575,7 @@ private fun ListingBody(
                 enter = fadeIn(),
                 exit = fadeOut()
             ) {
-                Text(listing.prettyPrint())
+                Text(listing.prettyPrint(), color = MaterialTheme.adminColors.textPrimary)
             }
         }
 
@@ -548,8 +601,16 @@ private fun UserCard(
             shape = CircleShape
         )
         Column(Modifier.padding(horizontal = 10.dp)) {
-            Text(text = user.displayName, style = Type.Body1)
-            Text(text = user.email, style = Type.Body1)
+            Text(
+                text = user.displayName,
+                style = Type.Body1,
+                color = MaterialTheme.adminColors.textPrimary
+            )
+            Text(
+                text = user.email,
+                style = Type.Body1,
+                color = MaterialTheme.adminColors.textPrimary
+            )
             Row(verticalAlignment = Alignment.CenterVertically) {
                 MyIcon(R.drawable.ic_filled_star)
                 val ratingsText = if (user.reviews.isNotEmpty()) "${user.reviews.size}-${
@@ -558,19 +619,22 @@ private fun UserCard(
                 Text(
                     modifier = Modifier.padding(horizontal = 5.dp),
                     text = ratingsText,
-                    style = Type.Body2
+                    style = Type.Body2,
+                    color = MaterialTheme.adminColors.textPrimary
                 )
                 MyIcon(R.drawable.ic_new_user)
                 Text(
                     modifier = Modifier.padding(horizontal = 5.dp),
                     text = getDateHyphen(user.created),
-                    style = Type.Body2
+                    style = Type.Body2,
+                    color = MaterialTheme.adminColors.textPrimary
                 )
                 MyIcon(R.drawable.ic_report)
                 Text(
                     modifier = Modifier.padding(horizontal = 5.dp),
                     text = listing.reports.toString(),
-                    style = Type.Body2
+                    style = Type.Body2,
+                    color = MaterialTheme.adminColors.textPrimary
                 )
             }
         }
@@ -580,7 +644,8 @@ private fun UserCard(
                 Text(
                     modifier = Modifier.padding(start = 5.dp),
                     text = userLocation,
-                    style = Type.Body1
+                    style = Type.Body1,
+                    color = MaterialTheme.adminColors.textPrimary
                 )
             }
         }

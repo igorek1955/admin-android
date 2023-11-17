@@ -42,9 +42,11 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.jarlingwar.adminapp.R
+import com.jarlingwar.adminapp.domain.models.ListingModel
 import com.jarlingwar.adminapp.domain.models.UserModel
 import com.jarlingwar.adminapp.domain.models.UserViewData
 import com.jarlingwar.adminapp.ui.common.LoadingDialog
+import com.jarlingwar.adminapp.ui.common.LogDialog
 import com.jarlingwar.adminapp.ui.common.MyIcon
 import com.jarlingwar.adminapp.ui.common.MyImage
 import com.jarlingwar.adminapp.ui.common.MySnack
@@ -84,7 +86,7 @@ fun UserScreen(
             verticalArrangement = Arrangement.spacedBy(10.dp)
         ) {
             item { UserCard(user, viewModel.isUserBlocked, onNavToReviews) }
-            item { UserDetails(viewModel.userData) }
+            item { UserDetails(viewModel.userData, viewModel.listings) }
             items(items = viewModel.listings, key = { it.listingId }) { item ->
                 HorizontalListingItem(listing = item) {
                     sharedViewModel.selectedListing = it
@@ -97,13 +99,22 @@ fun UserScreen(
             MySnack(text) { viewModel.error = null }
         }
 
-        if (viewModel.isDeleteSuccess) onNavBack()
+        if (viewModel.isDeleteSuccess && viewModel.deleteLogs.isEmpty()) {
+            LogDialog(log = "Data Delete Success") {
+                viewModel.isDeleteSuccess = false
+            }
+        }
+        if (viewModel.deleteLogs.isNotEmpty()) {
+            LogDialog(log = viewModel.deleteLogs) {
+                viewModel.deleteLogs = ""
+            }
+        }
         if (viewModel.isLoading) LoadingDialog()
     }
 }
 
 @Composable
-private fun UserDetails(data: UserViewData) {
+private fun UserDetails(data: UserViewData, listings: List<ListingModel>) {
     val user = data.userModel
     Column(Modifier.fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(5.dp)) {
         DetailsRow(fieldName = stringResource(R.string.id), fieldValue = user.userId)
@@ -117,7 +128,7 @@ private fun UserDetails(data: UserViewData) {
         )
         DetailsRow(
             fieldName = stringResource(R.string.total_listings),
-            fieldValue = user.listingsId.size.toString()
+            fieldValue = listings.size.toString()
         )
         DetailsRow(
             fieldName = stringResource(R.string.favorite_listings),
@@ -150,7 +161,8 @@ private fun UserDetails(data: UserViewData) {
             Button(
                 modifier = Modifier
                     .padding(top = 10.dp)
-                    .fillMaxWidth(),
+                    .fillMaxWidth()
+                    .background(MaterialTheme.adminColors.backgroundSecondary),
                 onClick = { showRawData = !showRawData }) {
                 Image(
                     modifier = Modifier
@@ -160,9 +172,12 @@ private fun UserDetails(data: UserViewData) {
                     contentDescription = null
                 )
                 Text(
-                    text = stringResource(if (!showRawData) R.string.show_raw_data
-                    else R.string.hide_raw_data),
-                    style = Type.Subtitle2M
+                    text = stringResource(
+                        if (!showRawData) R.string.show_raw_data
+                        else R.string.hide_raw_data
+                    ),
+                    style = Type.Subtitle2M,
+                    color = MaterialTheme.adminColors.textAltPrimary
                 )
             }
             AnimatedVisibility(
@@ -170,10 +185,14 @@ private fun UserDetails(data: UserViewData) {
                 enter = fadeIn(),
                 exit = fadeOut()
             ) {
-                Text(user.prettyPrint())
+                Text(user.prettyPrint(), color = MaterialTheme.adminColors.textPrimary)
             }
         }
-        Text(text = stringResource(id = R.string.published_listings), style = Type.Subtitle2M)
+        Text(
+            text = stringResource(id = R.string.published_listings),
+            style = Type.Subtitle2M,
+            color = MaterialTheme.adminColors.textPrimary
+        )
     }
 }
 
@@ -278,7 +297,7 @@ private fun OptionsTopBar(
             )
         }
         DropdownMenu(
-            expanded = showOptionsMenu,
+            expanded = showOptionsMenu && viewModel?.isLoading == false,
             onDismissRequest = { showOptionsMenu = false }
         ) {
             val isUserBlocked = viewModel?.isUserBlocked ?: false
@@ -338,7 +357,9 @@ private fun UserPreview() {
                 "3"
             )
             UserCard(user, true) { }
-            UserDetails(userData)
+            val listings = listOf(ListingModel.getMock(), ListingModel.getMock())
+            ListingModel.getMock()
+            UserDetails(userData, listings)
         }
     }
 }

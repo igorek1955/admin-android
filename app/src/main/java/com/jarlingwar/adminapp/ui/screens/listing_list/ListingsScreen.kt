@@ -43,6 +43,7 @@ import com.jarlingwar.adminapp.ui.common.DrawerScaffold
 import com.jarlingwar.adminapp.ui.common.DropDownTextMenu
 import com.jarlingwar.adminapp.ui.common.LoadingIndicator
 import com.jarlingwar.adminapp.ui.common.LoadingNextIndicator
+import com.jarlingwar.adminapp.ui.common.LogDialog
 import com.jarlingwar.adminapp.ui.common.MySnack
 import com.jarlingwar.adminapp.ui.common.NoResults
 import com.jarlingwar.adminapp.ui.common.showSnack
@@ -167,6 +168,11 @@ fun ListingsScreen(
                     if (showNoPermSnackbar) {
                         MySnack(text = "Can't send notifications") { showNoPermSnackbar = false }
                     }
+                }
+            }
+            if (viewModel.logs.isNotEmpty()) {
+                LogDialog(log = viewModel.logs) {
+                    viewModel.logs = ""
                 }
             }
         }

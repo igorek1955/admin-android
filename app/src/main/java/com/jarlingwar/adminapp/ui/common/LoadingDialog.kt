@@ -1,5 +1,6 @@
 package com.jarlingwar.adminapp.ui.common
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
@@ -27,7 +28,9 @@ import com.jarlingwar.adminapp.ui.theme.paddingPrimaryStartEnd
 
 @Composable
 fun LoadingDialog() {
-    Box(modifier = Modifier.fillMaxSize()) {
+    Box(modifier = Modifier
+        .fillMaxSize()
+        .background(MaterialTheme.adminColors.backgroundAltPrimary)) {
         Card(
             modifier = Modifier
                 .align(Alignment.Center)
@@ -44,7 +47,7 @@ fun LoadingDialog() {
             ) {
                 AnimatedImage(resId = R.raw.anim_loading, 50.dp)
                 Spacer(Modifier.width(10.dp))
-                Text(text = stringResource(R.string.loading), style = Type.Subtitle2)
+                Text(text = stringResource(R.string.loading), style = Type.Subtitle2, color = MaterialTheme.adminColors.textPrimary)
             }
         }
     }

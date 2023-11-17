@@ -9,6 +9,7 @@ import androidx.lifecycle.viewModelScope
 import com.jarlingwar.adminapp.domain.ListingManager
 import com.jarlingwar.adminapp.domain.UserManager
 import com.jarlingwar.adminapp.domain.models.ListingModel
+import com.jarlingwar.adminapp.domain.models.ListingStatus
 import com.jarlingwar.adminapp.domain.models.ListingsQueryParams
 import com.jarlingwar.adminapp.domain.models.SortOrder
 import com.jarlingwar.adminapp.domain.models.UserModel
@@ -40,6 +41,7 @@ class ListingsViewModel @Inject constructor(
     var isLoadingNext by mutableStateOf(false)
     var isRefreshing by mutableStateOf(false)
     var currentUser by mutableStateOf<UserModel?>(null)
+    var logs by mutableStateOf("")
     private var pager: Pager<ListingModel>? = null
 
     fun init(isPending: Boolean) {
@@ -48,6 +50,28 @@ class ListingsViewModel @Inject constructor(
         startPaging()
         viewModelScope.launch(Dispatchers.IO) {
             userManager.userInfoFlow.collectLatest { currentUser = it }
+        }
+        if (isPending) {
+            checkStaleListings()
+        }
+    }
+
+    private fun checkStaleListings() {
+        viewModelScope.launch(Dispatchers.IO) {
+            val freshTime = 5259600000 //2 months
+            listingManager.getPubListingsByDate(System.currentTimeMillis() - freshTime)
+                .onSuccess { listings ->
+                    if (listings.isNotEmpty()) {
+                        listings.forEach { listing ->
+                            listing.approved = false
+                            listing.status = ListingStatus.UNPUBLISHED
+                        }
+                        listingManager.saveListings(listings)
+                            .onSuccess { logs = "Successfully unpublished ${listings.size} listings" }
+                            .onFailure { logs = "Can't unpublish ${listings.size} listings, reason: ${it.message}" }
+                    }
+                }
+                .onFailure { logs = "Can't unpublish listings, reason: ${it.message}" }
         }
     }
 

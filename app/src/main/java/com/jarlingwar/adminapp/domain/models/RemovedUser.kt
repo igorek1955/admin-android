@@ -6,5 +6,6 @@ data class RemovedUser(
     val userId: String = "",
     var email: String = "",
     var created: Long = 0,
-    var isBlocked: Boolean = false
+    var isBlocked: Boolean = false,
+    var isSelfDestruct: Boolean = false
 )

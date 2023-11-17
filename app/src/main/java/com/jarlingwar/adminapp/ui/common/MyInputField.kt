@@ -108,6 +108,7 @@ fun MyPasswordField(
 
 @Composable
 private fun myTextFieldDefaults() = TextFieldDefaults.textFieldColors(
+    textColor = MaterialTheme.adminColors.textPrimary,
     backgroundColor = MaterialTheme.adminColors.backgroundPrimary,
     cursorColor = MaterialTheme.adminColors.primary,
     focusedIndicatorColor = MaterialTheme.adminColors.primary,

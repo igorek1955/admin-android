@@ -14,6 +14,7 @@ import com.jarlingwar.adminapp.domain.models.ListingStatus
 import com.jarlingwar.adminapp.domain.models.RejectReason
 import com.jarlingwar.adminapp.domain.models.UserModel
 import com.jarlingwar.adminapp.utils.CustomError
+import com.jarlingwar.adminapp.utils.ReportHandler
 import com.jarlingwar.adminapp.utils.geo.GeoDecoder
 import com.jarlingwar.adminapp.utils.geo.geohash.GeoHash
 import com.jarlingwar.adminapp.utils.toUnknown
@@ -74,7 +75,7 @@ class ListingViewModel @Inject constructor(
         isLoading = true
         val rejectedListing = listing.copy(
             approved = false,
-            rejectReason = reason.text,
+            rejectReason = reason.name + reason.text,
             status = ListingStatus.REJECTED
         )
         viewModelScope.launch(Dispatchers.IO) {
@@ -83,6 +84,7 @@ class ListingViewModel @Inject constructor(
                     isSuccess = true
                     isLoading = false
                     listing = rejectedListing
+                    updateUserListings()
                 }
                 .onFailure {
                     isLoading = false
@@ -95,7 +97,10 @@ class ListingViewModel @Inject constructor(
         isLoading = true
         viewModelScope.launch(Dispatchers.IO) {
             listingManager.deleteListing(listing)
-                .onSuccess { isDeleteSuccess = true }
+                .onSuccess {
+                    isDeleteSuccess = true
+                    updateUserListings()
+                }
                 .onFailure { error = it.toUnknown() }
         }
     }
@@ -104,7 +109,10 @@ class ListingViewModel @Inject constructor(
         isLoading = true
         viewModelScope.launch(Dispatchers.IO) {
             if (listingUser != null) {
-                listingManager.deleteListings(listingUser!!.listingsId).getOrNull()
+                val listings = listingManager.getUserListings(listingUser!!).getOrNull()
+                if (!listings.isNullOrEmpty()) {
+                    listingManager.deleteListings(listings).getOrNull()
+                }
                 userManager.deleteUser(listingUser!!)
                     .onSuccess { isDeleteSuccess = true }
                     .onFailure { error = it.toUnknown() }
@@ -113,6 +121,13 @@ class ListingViewModel @Inject constructor(
                     .onSuccess { isDeleteSuccess = true }
                     .onFailure { error = it.toUnknown() }
             }
+        }
+    }
+
+    private suspend fun updateUserListings() {
+        listingUser?.let { user ->
+            user.publishedListings -= 1
+            userManager.saveUser(user, false)
         }
     }
 }

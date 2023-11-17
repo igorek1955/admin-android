@@ -7,4 +7,5 @@ interface IChatRepository {
     fun getNotificationQueueAsFlow(): Flow<List<NotificationModel>>
     suspend fun getChatChannels(userId: String): Result<Int>
     suspend fun delete(notificationModel: NotificationModel): Result<Unit>
+    suspend fun deleteUserData(userId: String): Result<Unit>
 }
