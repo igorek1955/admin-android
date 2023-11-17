@@ -44,7 +44,7 @@ fun LogDialog(log: String, onDismiss: () -> Unit) {
                 Text(
                     text = log,
                     style = Type.Subtitle2,
-                    color = MaterialTheme.adminColors.textPrimary
+                    color = MaterialTheme.adminColors.primary
                 )
                 Spacer(modifier = Modifier.height(10.dp))
                 TextButton(onClick = onDismiss) {
