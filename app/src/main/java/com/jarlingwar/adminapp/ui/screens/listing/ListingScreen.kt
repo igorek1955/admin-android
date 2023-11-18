@@ -45,6 +45,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
@@ -262,6 +263,7 @@ fun ListingScreen(
 @Composable
 private fun RejectDialog(onApply: (RejectReason) -> Unit, onDismissAction: () -> Unit) {
     val reasons = RejectReason.values()
+    val ctx = LocalContext.current
     var selectedItem by remember { mutableStateOf(reasons.first()) }
     val otherReason = remember { mutableStateOf("") }
     Dialog(

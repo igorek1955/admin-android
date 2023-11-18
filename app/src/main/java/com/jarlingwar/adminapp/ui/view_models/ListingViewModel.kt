@@ -73,9 +73,10 @@ class ListingViewModel @Inject constructor(
 
     fun reject(reason: RejectReason) {
         isLoading = true
+        val rejectReasonText = if (reason == RejectReason.CUSTOM) reason.text else reason.name
         val rejectedListing = listing.copy(
             approved = false,
-            rejectReason = reason.name + reason.text,
+            rejectReason = rejectReasonText,
             status = ListingStatus.REJECTED
         )
         viewModelScope.launch(Dispatchers.IO) {
