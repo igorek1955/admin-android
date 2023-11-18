@@ -21,6 +21,7 @@ enum class SortOrder(
     val titleResId: Int,
     val fieldName: String,
     val direction: Query.Direction) {
+    UPDATED_DESC(R.string.filter_updated, ListingFields.UPDATED, Query.Direction.DESCENDING),
     CREATED_DESC(R.string.filter_most_recent, ListingFields.CREATED, Query.Direction.DESCENDING),
     PRICE_DESC(R.string.filter_price_desc, ListingFields.PRICE, Query.Direction.DESCENDING),
     PRICE_ASC(R.string.filter_price_asc, ListingFields.PRICE, Query.Direction.ASCENDING),

@@ -48,6 +48,7 @@
     <string name="filter_price_desc">Price descending</string>
     <string name="filter_pupolarity">Popularity</string>
     <string name="filter_most_recent">Most Recent</string>
+    <string name="filter_updated">Recently Updated</string>
     <string name="by_distance">Distance</string>
     <string name="max_price">Max. price</string>
     <string name="min_price">Min. price</string>

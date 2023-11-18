@@ -47,7 +47,7 @@ class ListingsRepositoryImpl(
             .whereLessThan(ListingFields.UPDATED, updateTime)
         return processQuery(
             query,
-            primaryOrder = SortOrder.CREATED_DESC,
+            primaryOrder = SortOrder.UPDATED_DESC,
             ignoreSecondaryOrder = true
         )
     }

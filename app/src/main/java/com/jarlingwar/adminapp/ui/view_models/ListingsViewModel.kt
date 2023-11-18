@@ -130,6 +130,7 @@ class ListingsViewModel @Inject constructor(
                     isLoading = false
                     isLoadingNext = false
                     isRefreshing = false
+                    listings = emptyList()
                 }
             }, pagingFlow = {
                 if (isPendingListings) listingManager.getPendingListingsPaging(it)

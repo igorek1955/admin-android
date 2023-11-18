@@ -126,20 +126,21 @@ fun ListingsScreen(
                     defaultVal = stringResource(id = viewModel.params.country!!.titleResId)
                 ) { viewModel.updateCountry(it) }
             }
-            if (viewModel.listings.isEmpty() && !viewModel.isLoading) {
-                NoResults()
-            } else {
-                Box(Modifier.pullRefresh(pullRefreshState)) {
-                    if (pullRefreshState.progress > 1.0f) {
-                        PullRefreshIndicator(
-                            backgroundColor = MaterialTheme.adminColors.backgroundPrimary,
-                            refreshing = viewModel.isRefreshing,
-                            state = pullRefreshState,
-                            modifier = Modifier
-                                .align(Alignment.TopCenter)
-                                .zIndex(1f)
-                        )
-                    }
+
+            Box(Modifier.pullRefresh(pullRefreshState)) {
+                if (pullRefreshState.progress > 1.0f) {
+                    PullRefreshIndicator(
+                        backgroundColor = MaterialTheme.adminColors.backgroundPrimary,
+                        refreshing = viewModel.isRefreshing,
+                        state = pullRefreshState,
+                        modifier = Modifier
+                            .align(Alignment.TopCenter)
+                            .zIndex(1f)
+                    )
+                }
+                if (viewModel.listings.isEmpty() && !viewModel.isLoading) {
+                    NoResults()
+                } else {
                     LazyVerticalGrid(
                         columns = GridCells.Fixed(2),
                         horizontalArrangement = Arrangement.spacedBy(10.dp),
@@ -169,10 +170,10 @@ fun ListingsScreen(
                         MySnack(text = "Can't send notifications") { showNoPermSnackbar = false }
                     }
                 }
-            }
-            if (viewModel.logs.isNotEmpty()) {
-                LogDialog(log = viewModel.logs) {
-                    viewModel.logs = ""
+                if (viewModel.logs.isNotEmpty()) {
+                    LogDialog(log = viewModel.logs) {
+                        viewModel.logs = ""
+                    }
                 }
             }
         }
