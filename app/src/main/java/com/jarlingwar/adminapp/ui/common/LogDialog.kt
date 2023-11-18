@@ -16,7 +16,10 @@ import androidx.compose.material.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.jarlingwar.adminapp.ui.theme.AdminAppTheme
 import com.jarlingwar.adminapp.ui.theme.FixedDimens
 import com.jarlingwar.adminapp.ui.theme.Type
 import com.jarlingwar.adminapp.ui.theme.adminColors
@@ -35,7 +38,7 @@ fun LogDialog(log: String, onDismiss: () -> Unit) {
                 .fillMaxWidth()
                 .paddingPrimaryStartEnd(),
             elevation = 5.dp,
-            backgroundColor = MaterialTheme.adminColors.backgroundSecondary,
+            backgroundColor = MaterialTheme.adminColors.fixedLogDialogBg,
             shape = RoundedCornerShape(FixedDimens.cornerRadius)
         ) {
             Column(
@@ -44,13 +47,23 @@ fun LogDialog(log: String, onDismiss: () -> Unit) {
                 Text(
                     text = log,
                     style = Type.Subtitle2,
-                    color = MaterialTheme.adminColors.primary
+                    color = Color.White
                 )
                 Spacer(modifier = Modifier.height(10.dp))
                 TextButton(onClick = onDismiss) {
-                    Text(text = "Dismiss")
+                    Text(text = "Dismiss", color = MaterialTheme.adminColors.primary)
                 }
             }
+        }
+    }
+}
+
+@Preview
+@Composable
+private fun LogPreview() {
+    AdminAppTheme {
+        LogDialog(log = "test text fdaf dsaf adsfasdf asdf asfdsafsad fasd fadsfasd fasdf ") {
+            
         }
     }
 }
