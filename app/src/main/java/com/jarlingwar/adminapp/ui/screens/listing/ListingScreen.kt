@@ -25,6 +25,7 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.Button
+import androidx.compose.material.ButtonDefaults
 import androidx.compose.material.Divider
 import androidx.compose.material.DropdownMenu
 import androidx.compose.material.DropdownMenuItem
@@ -551,14 +552,15 @@ private fun ListingBody(
             Button(
                 modifier = Modifier
                     .padding(top = 10.dp)
-                    .background(MaterialTheme.adminColors.backgroundSecondary)
                     .fillMaxWidth(),
+                colors = ButtonDefaults.buttonColors(backgroundColor = MaterialTheme.adminColors.backgroundPrimary),
                 onClick = { showRawData = !showRawData }) {
                 Image(
                     modifier = Modifier
                         .size(40.dp)
                         .rotate(rotation),
                     painter = painterResource(id = R.drawable.ic_arrow_down),
+                    colorFilter = ColorFilter.tint(MaterialTheme.adminColors.fillAltPrimary),
                     contentDescription = null
                 )
                 Text(
@@ -567,7 +569,7 @@ private fun ListingBody(
                         else R.string.hide_raw_data
                     ),
                     style = Type.Subtitle2M,
-                    color = MaterialTheme.adminColors.textAltPrimary
+                    color = MaterialTheme.adminColors.textPrimary
                 )
             }
             AnimatedVisibility(
