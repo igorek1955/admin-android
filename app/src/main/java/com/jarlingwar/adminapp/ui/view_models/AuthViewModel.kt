@@ -16,7 +16,6 @@ import com.jarlingwar.adminapp.R
 import com.jarlingwar.adminapp.domain.UserManager
 import com.jarlingwar.adminapp.utils.CustomError
 import com.jarlingwar.adminapp.utils.RemoteConfig
-import com.jarlingwar.adminapp.utils.ReportHandler
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.collectLatest

@@ -44,12 +44,14 @@ class ListingViewModel @Inject constructor(
         viewModelScope.launch(Dispatchers.IO) {
             listingUser = userManager.getUserById(listing.userId).getOrNull()
             listingUser?.geoHash?.let { hash ->
-                val loc = GeoHash(hash).toLocation()
-                geoDecoder.decodeLocation(loc, object : GeoDecoder.ResultListener {
-                    override fun onLocationReady(address: Address) {
-                        locationName = address.adminArea
-                    }
-                })
+                if (hash.isNotEmpty()) {
+                    val loc = GeoHash(hash).toLocation()
+                    geoDecoder.decodeLocation(loc, object : GeoDecoder.ResultListener {
+                        override fun onLocationReady(address: Address) {
+                            locationName = address.adminArea
+                        }
+                    })
+                }
             }
         }
     }

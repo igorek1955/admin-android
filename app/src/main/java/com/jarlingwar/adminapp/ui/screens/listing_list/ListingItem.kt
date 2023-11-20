@@ -43,7 +43,8 @@ fun ListingItem(listing: ListingModel, onItemClick: (ListingModel) -> Unit) {
         Modifier
             .clip(RoundedCornerShape(FixedDimens.cornerRadius))
             .background(MaterialTheme.adminColors.backgroundSecondary)
-            .height(205.dp)
+            .height(210.dp)
+            .padding(bottom = 5.dp)
             .clickable { onItemClick(listing) }
     ) {
         Box(
@@ -63,7 +64,6 @@ fun ListingItem(listing: ListingModel, onItemClick: (ListingModel) -> Unit) {
                 Modifier
                     .align(Alignment.BottomEnd)
                     .padding(bottom = 2.dp, end = 2.dp)
-                    .alpha(0.8f)
                     .clip(RoundedCornerShape(5.dp))
                     .background(MaterialTheme.adminColors.backgroundSecondary)
                     .padding(horizontal = 5.dp),

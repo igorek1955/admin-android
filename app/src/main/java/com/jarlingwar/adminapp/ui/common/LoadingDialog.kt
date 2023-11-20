@@ -38,7 +38,7 @@ fun LoadingDialog() {
                 .fillMaxWidth()
                 .paddingPrimaryStartEnd(),
             elevation = 5.dp,
-            backgroundColor = MaterialTheme.adminColors.backgroundSecondary,
+            backgroundColor = MaterialTheme.adminColors.backgroundPrimary,
             shape = RoundedCornerShape(FixedDimens.cornerRadius)
         ) {
             Row(
