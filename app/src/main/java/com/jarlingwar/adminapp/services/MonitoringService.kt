@@ -295,9 +295,11 @@ class MonitoringService : Service() {
                     messageBody = notification.messageBody
                 )
                 val response = fcmApi.sendMessage(fcmMessage)
+                sentNotifications.add(notification)
                 if (response.isSuccessful) {
-                    sentNotifications.add(notification)
                     chatRepo.delete(notification)
+                } else {
+                    sentNotifications.remove(notification)
                 }
             }
         } catch (e: Exception) {
