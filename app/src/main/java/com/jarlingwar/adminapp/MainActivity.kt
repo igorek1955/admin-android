@@ -15,6 +15,7 @@ import com.jarlingwar.adminapp.services.MonitoringService
 import com.jarlingwar.adminapp.ui.theme.AdminAppTheme
 import com.jarlingwar.adminapp.ui.view_models.MainViewModel
 import com.jarlingwar.adminapp.utils.ListingFields
+import com.jarlingwar.adminapp.utils.ReportHandler
 import com.jarlingwar.adminapp.utils.clear
 import dagger.hilt.android.AndroidEntryPoint
 
@@ -39,6 +40,7 @@ class MainActivity : ComponentActivity() {
     }
 
     override fun onNewIntent(intent: Intent?) {
+        if (!::navController.isInitialized) return
         super.onNewIntent(intent)
         if (intent != null) {
             when (intent.getStringExtra(MonitoringService.INTENT_TYPE)) {

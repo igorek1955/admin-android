@@ -132,6 +132,11 @@ class ReviewsViewModel @Inject constructor(
 
                 override fun onNoResults() {
                     isLoading = false
+                    if (!isLoadingNext) {
+                        reviews = emptyList()
+                    } else {
+                        isLoadingNext = false
+                    }
                 }
             }, pagingFlow = {
                 if (showOnlyPendingReviews) {

@@ -47,7 +47,6 @@ fun ReviewItem(review: ReviewModel, onApprove: () -> Unit, onReject: () -> Unit)
     SwipeCard(
         modifier = Modifier
             .padding(vertical = 5.dp)
-            .clickable(enabled = false, onClick = {})
             .defaultMinSize(minHeight = FixedDimens.minReviewCardHeight),
         elevation = 3.dp,
         shape = RoundedCornerShape(FixedDimens.cornerRadius),

@@ -45,7 +45,7 @@ fun ReviewsScreen(
     viewModel: ReviewsViewModel = hiltViewModel(),
     onNavigate: (String) -> Unit
 ) {
-    LaunchedEffect(Unit) { viewModel.init() }
+    LaunchedEffect(Unit) { viewModel.init(isPending = true) }
     DrawerScaffold(
         currentUser = viewModel.currentUser,
         currentDestination = DrawerItem.REVIEWS,
@@ -103,35 +103,33 @@ private fun ReviewsBody(
     onReject: (ReviewModel) -> Unit = { }
 ) {
     var isPending by remember { mutableStateOf(false) }
-    if (reviews.isEmpty() && !isLoading) {
-        NoResults()
-    } else {
-        Column(
-            Modifier
-                .fillMaxWidth()
-                .paddingPrimaryStartEnd()
-        ) {
-
-            if (isPaging) {
-                Row(verticalAlignment = Alignment.CenterVertically) {
-                    Text(
-                        text = stringResource(R.string.show_all_reviews),
-                        style = Type.Subtitle2,
-                        modifier = Modifier.padding(end = 5.dp)
+    Column(
+        Modifier
+            .fillMaxWidth()
+            .paddingPrimaryStartEnd()
+    ) {
+        if (isPaging) {
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Text(
+                    text = stringResource(R.string.show_all_reviews),
+                    style = Type.Subtitle2,
+                    modifier = Modifier.padding(end = 5.dp)
+                )
+                Switch(
+                    checked = isPending,
+                    onCheckedChange = {
+                        isPending = !isPending
+                        onModeSwitch()
+                    },
+                    colors = SwitchDefaults.colors(
+                        checkedThumbColor = MaterialTheme.adminColors.primary
                     )
-                    Switch(
-                        checked = isPending,
-                        onCheckedChange = {
-                            isPending = !isPending
-                            onModeSwitch()
-                        },
-                        colors = SwitchDefaults.colors(
-                            checkedThumbColor = MaterialTheme.adminColors.primary
-                        )
-                    )
-                }
+                )
             }
-
+        }
+        if (reviews.isEmpty() && !isLoading) {
+            NoResults()
+        } else {
             LazyColumn(verticalArrangement = Arrangement.spacedBy(5.dp)) {
                 itemsIndexed(items = reviews, key = { _, item -> item.id }) { i, review ->
                     ReviewItem(
@@ -147,8 +145,8 @@ private fun ReviewsBody(
                     }
                 }
             }
-            if (isLoading) LoadingIndicator()
         }
+        if (isLoading) LoadingIndicator()
     }
 }
 
