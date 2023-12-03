@@ -3,7 +3,6 @@ package com.jarlingwar.adminapp.ui.view_models
 import android.app.Application
 import android.content.Context
 import android.content.Intent
-import android.util.Log
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -16,6 +15,7 @@ import com.jarlingwar.adminapp.R
 import com.jarlingwar.adminapp.domain.UserManager
 import com.jarlingwar.adminapp.utils.CustomError
 import com.jarlingwar.adminapp.utils.RemoteConfig
+import com.jarlingwar.adminapp.utils.ReportHandler
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.collectLatest
@@ -111,7 +111,6 @@ class AuthViewModel @Inject constructor(
 
     fun setupGoogleAuth(context: Context) {
         val clientId = remoteConfig.oauthClientId
-        if (googleSignInClient != null || clientId.isEmpty()) return
         val googleSignInOptions = GoogleSignInOptions.Builder(
             GoogleSignInOptions.DEFAULT_SIGN_IN
         ).requestIdToken(clientId)

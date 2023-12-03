@@ -245,12 +245,15 @@ class UserManager @Inject constructor(
 
     suspend fun initData(id: String? = null, user: UserModel? = null) {
         var userModel = user
-        if (userModel == null) {
-            val fbUser = firebaseAuth.currentUser
-            val userId = id?: if (fbUser?.isAnonymous != true) fbUser?.uid else null
-            if (!userId.isNullOrEmpty()) {
-                userModel = remoteStorage.getUser(userId).getOrNull()
-            }
+        val fbUser = firebaseAuth.currentUser
+        val userId = when {
+            !user?.userId.isNullOrEmpty() -> user!!.userId
+            !id.isNullOrEmpty() -> id
+            fbUser?.isAnonymous == false -> fbUser.uid
+            else -> null
+        }
+        if (!userId.isNullOrEmpty()) {
+            userModel = remoteStorage.getUser(userId).getOrNull()
         }
         isInitialized = true
         userModel?.let {

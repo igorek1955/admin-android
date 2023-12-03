@@ -15,8 +15,8 @@ import com.jarlingwar.adminapp.services.MonitoringService
 import com.jarlingwar.adminapp.ui.theme.AdminAppTheme
 import com.jarlingwar.adminapp.ui.view_models.MainViewModel
 import com.jarlingwar.adminapp.utils.ListingFields
-import com.jarlingwar.adminapp.utils.ReportHandler
 import com.jarlingwar.adminapp.utils.clear
+import com.jarlingwar.adminapp.utils.observeAndAction
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
@@ -32,6 +32,7 @@ class MainActivity : ComponentActivity() {
             }
         }
         setupService()
+        observeAndAction(mainViewModel.isAuthRequired) { if (it == false) setupService() }
     }
 
     override fun onPause() {
@@ -59,7 +60,7 @@ class MainActivity : ComponentActivity() {
     }
 
     private fun setupService() {
-        if (!isMonitoringServiceRunning()) {
+        if (!isMonitoringServiceRunning() && mainViewModel.isAuthRequired.value == false) {
             val intent = Intent(this, MonitoringService::class.java)
             startForegroundService(intent)
         }

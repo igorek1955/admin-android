@@ -120,6 +120,7 @@ class UsersRepositoryImpl(
                             continuation.resume(Result.success(userModel))
                         } ?: continuation.resume(Result.failure(it.exception.toUnknown()))
                     } else {
+                        it.exception?.let { ReportHandler.reportError(it) }
                         continuation.resume(Result.failure(java.lang.Exception(it.exception)))
                     }
                 }
@@ -137,6 +138,7 @@ class UsersRepositoryImpl(
                             continuation.resume(Result.success(userModel))
                         } ?: continuation.resume(Result.failure(it.exception.toUnknown()))
                     } else {
+                        it.exception?.let { e -> ReportHandler.reportError(e) }
                         continuation.resume(Result.failure(Exception(it.exception)))
                     }
                 }
