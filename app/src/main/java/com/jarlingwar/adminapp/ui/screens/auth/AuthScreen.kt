@@ -93,6 +93,7 @@ fun AuthScreen(
     val title = if (viewModel.screenType == AuthViewModel.Screen.AUTH) {
         if (pagerState.currentPage == 0) titles[0] else titles[1]
     } else ""
+
     Scaffold(
         snackbarHost = { MySnack(snackState) },
         topBar = { TopBar(title = title) }
@@ -110,10 +111,12 @@ fun AuthScreen(
 
     if (viewModel.error != null) {
         val error = viewModel.error!!
-        val message = if (error.resId > 0) stringResource(id = error.resId)
-        else error.message ?: ""
+        val message =
+            if (!error.message.isNullOrEmpty()) error.message
+            else if (error.resId > 0) stringResource(id = error.resId)
+            else null
         LaunchedEffect(error) {
-            snackState.showSnackbar(message)
+            message?.let { snackState.showSnackbar(message)}
         }
     }
 }
@@ -272,12 +275,16 @@ private fun GoogleButton(
     launcher: ManagedActivityResultLauncher<Intent, ActivityResult>?,
     viewModel: AuthViewModel?
 ) {
+    val context = LocalContext.current
     Button(modifier = Modifier
         .fillMaxWidth()
         .height(MaterialTheme.adminDimens.buttonHeight),
         colors = ButtonDefaults.buttonColors(MaterialTheme.adminColors.backgroundPrimary),
         onClick = {
-            viewModel?.getSignInIntent()?.let { launcher?.launch(it) }
+            val googleAuth = viewModel?.getSignInIntent()
+            if (googleAuth != null) {
+                launcher?.launch(googleAuth)
+            } else { viewModel?.setupGoogleAuth(context) }
         }) {
         Image(
             painter = painterResource(id = R.drawable.ic_google),
