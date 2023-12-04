@@ -56,8 +56,22 @@ class ReviewsViewModel @Inject constructor(
             reviewsRepo.updateReview(review)
                 .onSuccess {
                     val updatedList = reviews.filterNot { it.id == review.id }
-                    reviews = updatedList
-                    isLoading = false
+                    val user = userManager.getUserById(review.userId).getOrNull()
+                    if (user != null) {
+                        user.reviews += review.rating
+                        userManager.saveUser(user, false)
+                            .onSuccess {
+                                isLoading = false
+                                reviews = updatedList
+                            }
+                            .onFailure {
+                                isLoading = false
+                                error = CustomError.newError("Can't update user.reviews")
+                            }
+                    } else {
+                        isLoading = false
+                        error = CustomError.USER_NOT_FOUND
+                    }
                 }
                 .onFailure {
                     isLoading = false

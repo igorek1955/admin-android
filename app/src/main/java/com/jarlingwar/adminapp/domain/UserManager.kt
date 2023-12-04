@@ -36,7 +36,7 @@ interface IUserManager {
     suspend fun authenticateGoogle(data: Intent): UserResponse
     suspend fun changePassword(oldPassword: String, newPassword: String): Result<Boolean>
     suspend fun saveNewUser(userModel: UserModel): Result<Boolean>
-    suspend fun saveUser(userModel: UserModel, isCurrentUser: Boolean = true): Result<Boolean>
+    suspend fun saveUser(userModel: UserModel, isCurrentUser: Boolean): Result<Boolean>
     suspend fun getUserById(userId: String): UserResponse
     suspend fun getUsersByEmail(email: String): Result<List<UserModel>>
     suspend fun getUsersByName(name: String): Result<List<UserModel>>
@@ -159,7 +159,7 @@ class UserManager @Inject constructor(
             .build()
         firebaseAuth.currentUser?.updateProfile(request)
             ?.addOnFailureListener { ReportHandler.reportError(it) }
-        return saveUser(userModel)
+        return saveUser(userModel, true)
     }
 
     /**
@@ -212,7 +212,7 @@ class UserManager @Inject constructor(
     override suspend fun updateUserToken(token: String) {
         userInfoFlow.value?.let { user ->
             user.fcmToken = token
-            saveUser(user)
+            saveUser(user, true)
         }
     }
 
@@ -264,7 +264,7 @@ class UserManager @Inject constructor(
             if (!userModel.verified) {
                 userModel.verified = firebaseAuth.currentUser?.isEmailVerified ?: false
             }
-            saveUser(userModel)
+            saveUser(userModel, true)
         }
     }
 }
