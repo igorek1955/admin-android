@@ -1,5 +1,6 @@
 package com.jarlingwar.adminapp.domain.models
 
+import java.util.Random
 import java.util.UUID
 
 data class ReviewModel(
@@ -8,18 +9,29 @@ data class ReviewModel(
     var reviewerId: String,
     var reviewerImageUrl: String,
     var reviewerName: String,
-    var timestamp: Long,
-    var isApproved: Boolean = false,
+    var created: Long,
+    var approved: Boolean = false,
     var rating: Float,
     var body: String
 ) {
+    companion object {
+        fun getMock(): ReviewModel {
+            val user = UserModel.getMock()
+            val rating = Random().nextInt(5).toFloat()
+            var mockText = ""
+            repeat(10) {
+                mockText += UUID.randomUUID().toString() + " "
+            }
+            return ReviewModel(UUID.randomUUID().toString(), user, rating, mockText)
+        }
+    }
     constructor() : this(
         id = "",
         userId = "",
         reviewerId = "",
         reviewerImageUrl = "",
         reviewerName = "",
-        timestamp = 0L,
+        created = 0L,
         rating = 0f,
         body = ""
     )
@@ -30,7 +42,7 @@ data class ReviewModel(
         reviewerId = reviewer.userId,
         reviewerImageUrl = reviewer.profileImageUrl,
         reviewerName = reviewer.displayName,
-        timestamp = System.currentTimeMillis(),
+        created = System.currentTimeMillis(),
         rating = rating,
         body = message
     )

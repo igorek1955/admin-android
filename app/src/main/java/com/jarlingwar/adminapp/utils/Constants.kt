@@ -7,23 +7,57 @@ object SPTypes {
 object FirestoreCollections {
     const val USERS = "users"
     const val LISTINGS = "listings"
-    const val RATINGS = "ratings"
+    const val BLOCKED_USERS = "blockedUsers"
+    const val DELETED_USERS = "deletedUsers"
+    const val MESSAGES = "messages"
+    const val CHANNELS = "channels"
+    const val REVIEWS = "reviews"
     const val IMAGES = "images"
     const val REPORTS = "reports"
-    const val REVIEWS = "reviews"
-    const val CHANNELS = "channels"
-    const val MESSAGES = "messages"
+    const val NOTIFICATIONS = "notifications"
+}
+
+object ChatFields {
+    const val USER_A = "userA"
+    const val USER_B = "userB"
+    const val SENDER_ID = "senderId"
+    const val RECEIVER_ID = "receiverId"
+    const val CHANNEL_ID = "channelId"
+    const val MESSAGE_IS_SEEN = "seen"
+    const val MESSAGE_DELETED_BY = "deletedByUser"
+}
+
+object NotificationFields {
+    const val RECEIVER_ID = "receiverId"
+    const val SENDER_ID = "senderId"
 }
 
 object ReviewFields {
+    const val ID = "id"
     const val USER_ID = "userId"
     const val REVIEWER_ID = "reviewerId"
+    const val CREATED = "created"
+    const val APPROVED = "approved"
+}
+
+object ReportFields {
+    const val LAST_REPORTED = "lastReported"
+    const val PROCESSED = "processed"
 }
 
 object UserFields {
     const val EMAIL = "email"
     const val UID = "userId"
-    const val ONLINE = "online"
+    const val NAME = "displayName"
+    const val CREATED = "created"
+    const val UPDATED = "updated"
+    const val REPORTS = "reports"
+}
+
+object BlockedUserFields {
+    const val EMAIL = "email"
+    const val UID = "userId"
+    const val CREATED = "created"
 }
 
 object ListingFields {
@@ -38,6 +72,7 @@ object ListingFields {
     const val COUNTRY = "location.country"
     const val COUNTRY_PART = "location.countryPart"
     const val CREATED = "created"
+    const val UPDATED = "updated"
     const val REACTIONS = "reactions"
     const val CATEGORY = "category"
     const val PRICE = "price"

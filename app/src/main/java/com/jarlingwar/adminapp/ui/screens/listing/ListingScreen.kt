@@ -25,6 +25,7 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.Button
+import androidx.compose.material.ButtonDefaults
 import androidx.compose.material.Divider
 import androidx.compose.material.DropdownMenu
 import androidx.compose.material.DropdownMenuItem
@@ -44,8 +45,10 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -60,9 +63,9 @@ import com.jarlingwar.adminapp.domain.models.ListingModel
 import com.jarlingwar.adminapp.domain.models.ListingStatus
 import com.jarlingwar.adminapp.domain.models.RejectReason
 import com.jarlingwar.adminapp.domain.models.UserModel
-import com.jarlingwar.adminapp.domain.models.getCategoryByType
 import com.jarlingwar.adminapp.ui.common.ImageDialog
 import com.jarlingwar.adminapp.ui.common.IndicatorLine
+import com.jarlingwar.adminapp.ui.common.LoadingDialog
 import com.jarlingwar.adminapp.ui.common.MyIcon
 import com.jarlingwar.adminapp.ui.common.MyImage
 import com.jarlingwar.adminapp.ui.common.MyInputField
@@ -78,7 +81,7 @@ import com.jarlingwar.adminapp.ui.view_models.ListingViewModel
 import com.jarlingwar.adminapp.ui.view_models.SharedViewModel
 import com.jarlingwar.adminapp.utils.geo.capitalized
 import com.jarlingwar.adminapp.utils.geo.getCurrency
-import com.jarlingwar.adminapp.utils.getTimeHyphen
+import com.jarlingwar.adminapp.utils.getDateHyphen
 import com.jarlingwar.adminapp.utils.prettyPrint
 import com.jarlingwar.adminapp.utils.round
 import me.onebone.toolbar.CollapsingToolbarScaffold
@@ -185,14 +188,14 @@ fun ListingScreen(
                                 style = Type.Subtitle2
                             )
                         }
-                        DropdownMenuItem(onClick = { viewModel.deleteAndBlockUser() }) {
+                        DropdownMenuItem(onClick = { viewModel.deleteAllUserData() }) {
                             Text(text = stringResource(R.string.block_user), style = Type.Subtitle2)
                         }
                         DropdownMenuItem(onClick = {
                             showRejectDialog = true
                         }) {
                             Text(
-                                text = stringResource(R.string.unpublish_listing),
+                                text = stringResource(R.string.reject),
                                 style = Type.Subtitle2
                             )
                         }
@@ -201,9 +204,12 @@ fun ListingScreen(
             }
             Text(
                 text = viewModel.listing.title,
+                color = MaterialTheme.adminColors.textPrimary,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis,
                 fontSize = (18 + (30 - 18) * progress).sp,
                 modifier = Modifier
-                    .padding(5.dp)
+                    .padding(3.dp)
                     .background(
                         MaterialTheme.adminColors.backgroundTertiary.copy(alpha = progress),
                         RoundedCornerShape(15.dp)
@@ -225,30 +231,39 @@ fun ListingScreen(
                 onUserTap = {
                     sharedViewModel.selectedUser = viewModel.listingUser
                     onUserTap()
-                }) {
-            }
+                },
+                onApprove = { viewModel.approve() })
         })
-    if (showRejectDialog) {
-        RejectDialog(onApply = { viewModel.reject(it) }) { showRejectDialog = false }
-    }
+
     if (showImageDialog) {
         val imgUrl = listing.remoteImgUrlList.getOrNull(pagerState.currentPage)
         ImageDialog(imageUrl = imgUrl) {
             showImageDialog = false
         }
     }
-    if (viewModel.success) {
-        MySnack(stringResource(R.string.action_success)) { viewModel.success = false }
-    }
+
     viewModel.error?.resId?.let { resId ->
         val text = if (resId > 0) stringResource(resId) else viewModel.error?.message ?: ""
         MySnack(text) { viewModel.error = null }
     }
+
+    if (showRejectDialog) RejectDialog(onApply = {
+        showRejectDialog = false
+        viewModel.reject(it)
+    }) {
+        showRejectDialog = false
+    }
+    if (viewModel.isSuccess) MySnack(stringResource(R.string.action_success)) {
+        viewModel.isSuccess = false
+    }
+    if (viewModel.isDeleteSuccess) onBackTap()
+    if (viewModel.isLoading) LoadingDialog()
 }
 
 @Composable
 private fun RejectDialog(onApply: (RejectReason) -> Unit, onDismissAction: () -> Unit) {
     val reasons = RejectReason.values()
+    val ctx = LocalContext.current
     var selectedItem by remember { mutableStateOf(reasons.first()) }
     val otherReason = remember { mutableStateOf("") }
     Dialog(
@@ -272,7 +287,11 @@ private fun RejectDialog(onApply: (RejectReason) -> Unit, onDismissAction: () ->
                     .padding(vertical = 10.dp),
                 horizontalArrangement = Arrangement.Center
             ) {
-                Text(text = stringResource(R.string.reason), style = Type.Subtitle2M)
+                Text(
+                    text = stringResource(R.string.reason),
+                    style = Type.Subtitle2M,
+                    color = MaterialTheme.adminColors.textPrimary
+                )
             }
             reasons.forEach { reason ->
                 Row(
@@ -286,7 +305,8 @@ private fun RejectDialog(onApply: (RejectReason) -> Unit, onDismissAction: () ->
                     )
                     Text(
                         text = stringResource(id = reason.resId),
-                        modifier = Modifier.padding(start = 8.dp)
+                        modifier = Modifier.padding(start = 8.dp),
+                        color = MaterialTheme.adminColors.textPrimary
                     )
                 }
             }
@@ -347,7 +367,8 @@ private fun ListingBody(
     ) {
         Text(
             text = "${listing.price}${listing.location.getCurrency()}",
-            style = Type.Header2
+            style = Type.Header2,
+            color = MaterialTheme.adminColors.textPrimary
         )
         Divider(
             Modifier
@@ -355,6 +376,7 @@ private fun ListingBody(
                 .padding(vertical = 10.dp)
                 .height(1.dp)
         )
+
         if (listing.status == ListingStatus.PUBLISHED && !listing.approved) {
             Row(Modifier.fillMaxWidth()) {
                 PrimaryButton(
@@ -372,11 +394,22 @@ private fun ListingBody(
                 ) { onRejectTap() }
             }
         }
-        Text(
-            text = listing.status.name.capitalized(),
-            style = Type.Subtitle2M,
-            modifier = Modifier.padding(vertical = 10.dp)
-        )
+
+        Row(Modifier.padding(vertical = 10.dp)) {
+            Text(
+                text = listing.status.name.capitalized(),
+                style = Type.Subtitle2M,
+                color = MaterialTheme.adminColors.textPrimary
+            )
+            if (listing.status == ListingStatus.REJECTED) {
+                Text(
+                    modifier = Modifier.padding(start = 10.dp),
+                    text = "${listing.rejectReason}",
+                    color = MaterialTheme.adminColors.textPrimary
+                )
+            }
+        }
+
         Divider()
         user?.let {
             UserCard(user, listing, userLocation, onUserTap)
@@ -394,7 +427,11 @@ private fun ListingBody(
                 color = MaterialTheme.adminColors.textSecondary
             )
         }
-        Text(text = listing.contactInfo, style = Type.Body1)
+        Text(
+            text = listing.contactInfo,
+            style = Type.Body1,
+            color = MaterialTheme.adminColors.textPrimary
+        )
         Spacer(modifier = Modifier.height(10.dp))
         Divider()
 
@@ -408,7 +445,11 @@ private fun ListingBody(
                 color = MaterialTheme.adminColors.textSecondary
             )
         }
-        Text(text = listing.description, style = Type.Body1)
+        Text(
+            text = listing.description,
+            style = Type.Body1,
+            color = MaterialTheme.adminColors.textPrimary
+        )
         Spacer(modifier = Modifier.height(10.dp))
         Divider()
 
@@ -424,25 +465,28 @@ private fun ListingBody(
         }
         Text(
             text = "${listing.location?.locationName} ${listing.location?.geoHash}",
-            style = Type.Body1
+            style = Type.Body1,
+            color = MaterialTheme.adminColors.textPrimary
         )
         Spacer(modifier = Modifier.height(10.dp))
         Divider()
 
         //details
         Spacer(modifier = Modifier.height(5.dp))
-        getCategoryByType(listing.category)?.titleResId?.let { resId ->
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween
-            ) {
-                Text(
-                    text = stringResource(id = R.string.category),
-                    style = Type.Body1,
-                    color = MaterialTheme.adminColors.textSecondary
-                )
-                Text(text = stringResource(id = resId), style = Type.Body1)
-            }
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceBetween
+        ) {
+            Text(
+                text = stringResource(id = R.string.category),
+                style = Type.Body1,
+                color = MaterialTheme.adminColors.textSecondary
+            )
+            Text(
+                text = listing.category.toString(),
+                style = Type.Body1,
+                color = MaterialTheme.adminColors.textPrimary
+            )
         }
         Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
             Text(
@@ -450,7 +494,11 @@ private fun ListingBody(
                 style = Type.Body1,
                 color = MaterialTheme.adminColors.textSecondary
             )
-            Text(text = getTimeHyphen(listing.created), style = Type.Body1)
+            Text(
+                text = getDateHyphen(listing.created),
+                style = Type.Body1,
+                color = MaterialTheme.adminColors.textPrimary
+            )
         }
         Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
             Text(
@@ -458,7 +506,11 @@ private fun ListingBody(
                 style = Type.Body1,
                 color = MaterialTheme.adminColors.textSecondary
             )
-            Text(text = getTimeHyphen(listing.updated), style = Type.Body1)
+            Text(
+                text = getDateHyphen(listing.updated),
+                style = Type.Body1,
+                color = MaterialTheme.adminColors.textPrimary
+            )
         }
         Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
             Text(
@@ -466,7 +518,11 @@ private fun ListingBody(
                 style = Type.Body1,
                 color = MaterialTheme.adminColors.textSecondary
             )
-            Text(text = listing.views.toString(), style = Type.Body1)
+            Text(
+                text = listing.views.toString(),
+                style = Type.Body1,
+                color = MaterialTheme.adminColors.textPrimary
+            )
         }
         Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
             Text(
@@ -474,7 +530,11 @@ private fun ListingBody(
                 style = Type.Body1,
                 color = MaterialTheme.adminColors.textSecondary
             )
-            Text(text = listing.reactions.toString(), style = Type.Body1)
+            Text(
+                text = listing.reactions.toString(),
+                style = Type.Body1,
+                color = MaterialTheme.adminColors.textPrimary
+            )
         }
         Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
             Text(
@@ -482,31 +542,44 @@ private fun ListingBody(
                 style = Type.Body1,
                 color = MaterialTheme.adminColors.textSecondary
             )
-            Text(text = listing.reports.toString(), style = Type.Body1)
+            Text(
+                text = listing.reports.toString(),
+                style = Type.Body1,
+                color = MaterialTheme.adminColors.textPrimary
+            )
         }
         var showRawData by remember { mutableStateOf(false) }
-        val rotation by animateFloatAsState(targetValue = if (showRawData) 180f else 0f)
+        val rotation by animateFloatAsState(targetValue = if (showRawData) 180f else 0f, label = "")
         Column {
             Button(
                 modifier = Modifier
                     .padding(top = 10.dp)
                     .fillMaxWidth(),
+                colors = ButtonDefaults.buttonColors(backgroundColor = MaterialTheme.adminColors.backgroundPrimary),
                 onClick = { showRawData = !showRawData }) {
                 Image(
                     modifier = Modifier
                         .size(40.dp)
                         .rotate(rotation),
                     painter = painterResource(id = R.drawable.ic_arrow_down),
+                    colorFilter = ColorFilter.tint(MaterialTheme.adminColors.fillAltPrimary),
                     contentDescription = null
                 )
-                Text(text = "Show Raw Data", style = Type.Subtitle2M)
+                Text(
+                    text = stringResource(
+                        if (!showRawData) R.string.show_raw_data
+                        else R.string.hide_raw_data
+                    ),
+                    style = Type.Subtitle2M,
+                    color = MaterialTheme.adminColors.textPrimary
+                )
             }
             AnimatedVisibility(
                 visible = showRawData,
                 enter = fadeIn(),
                 exit = fadeOut()
             ) {
-                Text(listing.prettyPrint())
+                Text(listing.prettyPrint(), color = MaterialTheme.adminColors.textPrimary)
             }
         }
 
@@ -532,29 +605,40 @@ private fun UserCard(
             shape = CircleShape
         )
         Column(Modifier.padding(horizontal = 10.dp)) {
-            Text(text = user.displayName, style = Type.Body1)
-            Text(text = user.email, style = Type.Body1)
+            Text(
+                text = user.displayName,
+                style = Type.Body1,
+                color = MaterialTheme.adminColors.textPrimary
+            )
+            Text(
+                text = user.email,
+                style = Type.Body1,
+                color = MaterialTheme.adminColors.textPrimary
+            )
             Row(verticalAlignment = Alignment.CenterVertically) {
-                MyIcon(R.drawable.ic_star)
-                val ratingsText = if (user.ratings.isNotEmpty()) "${user.ratings.size}-${
-                    user.ratings.average().round()
+                MyIcon(R.drawable.ic_filled_star)
+                val ratingsText = if (user.reviews.isNotEmpty()) "${user.reviews.size}-${
+                    user.reviews.average().round()
                 }" else "0"
                 Text(
                     modifier = Modifier.padding(horizontal = 5.dp),
                     text = ratingsText,
-                    style = Type.Body2
+                    style = Type.Body2,
+                    color = MaterialTheme.adminColors.textPrimary
                 )
                 MyIcon(R.drawable.ic_new_user)
                 Text(
                     modifier = Modifier.padding(horizontal = 5.dp),
-                    text = getTimeHyphen(user.created),
-                    style = Type.Body2
+                    text = getDateHyphen(user.created),
+                    style = Type.Body2,
+                    color = MaterialTheme.adminColors.textPrimary
                 )
                 MyIcon(R.drawable.ic_report)
                 Text(
                     modifier = Modifier.padding(horizontal = 5.dp),
                     text = listing.reports.toString(),
-                    style = Type.Body2
+                    style = Type.Body2,
+                    color = MaterialTheme.adminColors.textPrimary
                 )
             }
         }
@@ -564,7 +648,8 @@ private fun UserCard(
                 Text(
                     modifier = Modifier.padding(start = 5.dp),
                     text = userLocation,
-                    style = Type.Body1
+                    style = Type.Body1,
+                    color = MaterialTheme.adminColors.textPrimary
                 )
             }
         }

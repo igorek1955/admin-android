@@ -24,7 +24,6 @@ fun Query.paginate(pagingStartVal: Flow<Int>, limit: Long): Flow<List<DocumentSn
     )
     emit(documents)
     pagingStartVal.transform { value ->
-        ReportHandler.logEvent("Query.paginage lastVisibleItem :$value documents:${documents.size}")
         if (value == documents.size && documents.size > 0) {
             documents.addAll(
                 suspendCoroutine { c ->

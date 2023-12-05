@@ -43,18 +43,9 @@ object Destinations {
         override val title: Int = R.string.users
     }
 
-    object ReportedUsers : Destination {
-        override val route: String = "reportedUsers"
-        override val title: Int = 0
-    }
-
-    object UserSearch : Destination {
-        override val route: String = "userSearch"
-        override val title: Int = 0
-    }
-
-    object ListingSearch : Destination {
-        override val route: String = "listingSearch"
+    
+    object Search : Destination {
+        override val route: String = "search"
         override val title: Int = 0
     }
 
@@ -65,6 +56,11 @@ object Destinations {
 
     object Reviews : Destination {
         override val route: String = "reviews"
+        override val title: Int = 0
+    }
+
+    object Reports : Destination {
+        override val route: String = "reports"
         override val title: Int = 0
     }
 }

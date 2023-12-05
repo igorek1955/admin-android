@@ -23,6 +23,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
@@ -36,6 +37,7 @@ import com.jarlingwar.adminapp.ui.theme.AdminAppTheme
 import com.jarlingwar.adminapp.ui.theme.Type
 import com.jarlingwar.adminapp.ui.theme.adminColors
 import com.jarlingwar.adminapp.ui.theme.paddingPrimaryStartEnd
+import com.jarlingwar.adminapp.utils.CustomError
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
@@ -66,6 +68,14 @@ fun MySnack(text: String, onDismiss: () -> Unit) {
     LaunchedEffect(text) {
         delay(3000)
         onDismiss()
+    }
+}
+
+@Composable
+fun CustomError.showSnack(onDismiss: () -> Unit) {
+    this.resId.let { resId ->
+        val text = if (resId > 0) stringResource(resId) else this.message ?: ""
+        MySnack(text) { onDismiss() }
     }
 }
 

@@ -1,5 +1,6 @@
 package com.jarlingwar.adminapp.ui.common
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
@@ -16,9 +17,11 @@ import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.jarlingwar.adminapp.R
+import com.jarlingwar.adminapp.ui.theme.FixedDimens
 import com.jarlingwar.adminapp.ui.theme.Type
 import com.jarlingwar.adminapp.ui.theme.adminColors
 import com.jarlingwar.adminapp.ui.theme.adminDimens
@@ -26,14 +29,17 @@ import com.jarlingwar.adminapp.ui.theme.paddingPrimaryStartEnd
 
 @Composable
 fun LoadingDialog() {
-    Box(modifier = Modifier.fillMaxSize()) {
+    Box(modifier = Modifier
+        .fillMaxSize()
+        .background(MaterialTheme.adminColors.backgroundAltPrimary)) {
         Card(
             modifier = Modifier
                 .align(Alignment.Center)
+                .fillMaxWidth()
                 .paddingPrimaryStartEnd(),
             elevation = 5.dp,
-            backgroundColor = MaterialTheme.adminColors.backgroundSecondary,
-            shape = RoundedCornerShape(MaterialTheme.adminDimens.cornerRadius)
+            backgroundColor = MaterialTheme.adminColors.backgroundPrimary,
+            shape = RoundedCornerShape(FixedDimens.cornerRadius)
         ) {
             Row(
                 Modifier.padding(start = 10.dp, end = 30.dp, top = 10.dp, bottom = 10.dp),
@@ -42,7 +48,7 @@ fun LoadingDialog() {
             ) {
                 AnimatedImage(resId = R.raw.anim_loading, 50.dp)
                 Spacer(Modifier.width(10.dp))
-                Text(text = stringResource(R.string.loading), style = Type.Subtitle2)
+                Text(text = stringResource(R.string.loading), style = Type.Subtitle2, color = MaterialTheme.adminColors.textPrimary)
             }
         }
     }

@@ -10,13 +10,16 @@ import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.GoogleAuthProvider
 import com.google.firebase.auth.UserProfileChangeRequest
 import com.google.firebase.messaging.FirebaseMessaging
+import com.jarlingwar.adminapp.domain.models.RemovedUser
 import com.jarlingwar.adminapp.domain.models.UserModel
-import com.jarlingwar.adminapp.domain.repositories.remote.IUsersRemoteRepository
+import com.jarlingwar.adminapp.domain.models.UsersQueryParams
+import com.jarlingwar.adminapp.domain.repositories.remote.IUsersRepository
 import com.jarlingwar.adminapp.domain.repositories.remote.UserResponse
 import com.jarlingwar.adminapp.utils.CustomError
 import com.jarlingwar.adminapp.utils.ReportHandler
 import com.jarlingwar.adminapp.utils.toUnknown
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.tasks.await
@@ -33,16 +36,24 @@ interface IUserManager {
     suspend fun authenticateGoogle(data: Intent): UserResponse
     suspend fun changePassword(oldPassword: String, newPassword: String): Result<Boolean>
     suspend fun saveNewUser(userModel: UserModel): Result<Boolean>
-    suspend fun saveUser(userModel: UserModel): Result<Boolean>
+    suspend fun saveUser(userModel: UserModel, isCurrentUser: Boolean): Result<Boolean>
     suspend fun getUserById(userId: String): UserResponse
+    suspend fun getUsersByEmail(email: String): Result<List<UserModel>>
+    suspend fun getUsersByName(name: String): Result<List<UserModel>>
     suspend fun updateUserToken(token: String)
     suspend fun logout()
     suspend fun deleteUser(userModel: UserModel): Result<Boolean>
+    suspend fun blockUser(id: String, email: String) : Result<Boolean>
+    suspend fun getBlockStatus(id: String) : Result<Boolean>
+    suspend fun unblockUser(id: String) : Result<Boolean>
+    fun getUsersPaging(pagingReference: Flow<Int>) : Flow<List<UserModel>>
+    fun updateParams(params: UsersQueryParams)
+    fun getParams(): UsersQueryParams
 }
 
 @Singleton
 class UserManager @Inject constructor(
-    private val remoteStorage: IUsersRemoteRepository,
+    private val remoteStorage: IUsersRepository,
     private val firebaseAuth: FirebaseAuth
 ) : IUserManager {
     var userInfoFlow: MutableStateFlow<UserModel?> = MutableStateFlow(null)
@@ -148,18 +159,21 @@ class UserManager @Inject constructor(
             .build()
         firebaseAuth.currentUser?.updateProfile(request)
             ?.addOnFailureListener { ReportHandler.reportError(it) }
-        return saveUser(userModel)
+        return saveUser(userModel, true)
     }
 
     /**
      * 1 - setting user.updated
      * 2 - saving user to firebase remote database
+     * @param isCurrentUser - current app user (admin)
      */
-    override suspend fun saveUser(userModel: UserModel): Result<Boolean> {
+    override suspend fun saveUser(userModel: UserModel, isCurrentUser: Boolean): Result<Boolean> {
         return withContext(Dispatchers.IO) {
             try {
                 val updatedUser = userModel.copy(updated = System.currentTimeMillis())
-                userInfoFlow.update { updatedUser }
+                if (isCurrentUser) {
+                    userInfoFlow.update { updatedUser }
+                }
                 remoteStorage.saveUser(updatedUser)
             } catch (e: Exception) {
                 ReportHandler.reportError(e)
@@ -168,11 +182,37 @@ class UserManager @Inject constructor(
         }
     }
 
-    override suspend fun getUserById(userId: String): UserResponse = remoteStorage.getUser(userId)
+    override suspend fun getUserById(userId: String): UserResponse {
+        return try {
+            remoteStorage.getUser(userId)
+        } catch (e: Exception) {
+            ReportHandler.reportError(e)
+            Result.failure(e)
+        }
+    }
+
+    override suspend fun getUsersByEmail(email: String): Result<List<UserModel>> {
+        return try {
+            remoteStorage.getUsersByEmail(email)
+        } catch (e: Exception) {
+            ReportHandler.reportError(e)
+            Result.failure(e)
+        }
+    }
+
+    override suspend fun getUsersByName(name: String): Result<List<UserModel>> {
+        return try {
+            remoteStorage.getUsersByName(name)
+        } catch (e: Exception) {
+            ReportHandler.reportError(e)
+            Result.failure(e)
+        }
+    }
+
     override suspend fun updateUserToken(token: String) {
         userInfoFlow.value?.let { user ->
             user.fcmToken = token
-            saveUser(user)
+            saveUser(user, true)
         }
     }
 
@@ -192,14 +232,28 @@ class UserManager @Inject constructor(
         }
     }
 
+    override suspend fun blockUser(id: String, email: String) : Result<Boolean> {
+        val blockedUser = RemovedUser(id, email, System.currentTimeMillis(), true)
+        return remoteStorage.blockUser(blockedUser)
+    }
+    override suspend fun getBlockStatus(id: String) = remoteStorage.getBlockStatus(id)
+    override suspend fun unblockUser(id: String) = remoteStorage.unblockUser(id)
+    override fun getUsersPaging(pagingReference: Flow<Int>) = remoteStorage.getUsersPaging(pagingReference)
+
+    override fun updateParams(params: UsersQueryParams) { remoteStorage.updateParams(params) }
+    override fun getParams() = remoteStorage.getParams()
+
     suspend fun initData(id: String? = null, user: UserModel? = null) {
         var userModel = user
-        if (userModel == null) {
-            val fbUser = firebaseAuth.currentUser
-            val userId = id?: if (fbUser?.isAnonymous != true) fbUser?.uid else null
-            if (!userId.isNullOrEmpty()) {
-                userModel = remoteStorage.getUser(userId).getOrNull()
-            }
+        val fbUser = firebaseAuth.currentUser
+        val userId = when {
+            !user?.userId.isNullOrEmpty() -> user!!.userId
+            !id.isNullOrEmpty() -> id
+            fbUser?.isAnonymous == false -> fbUser.uid
+            else -> null
+        }
+        if (!userId.isNullOrEmpty()) {
+            userModel = remoteStorage.getUser(userId).getOrNull()
         }
         isInitialized = true
         userModel?.let {
@@ -210,7 +264,7 @@ class UserManager @Inject constructor(
             if (!userModel.verified) {
                 userModel.verified = firebaseAuth.currentUser?.isEmailVerified ?: false
             }
-            saveUser(userModel)
+            saveUser(userModel, true)
         }
     }
 }

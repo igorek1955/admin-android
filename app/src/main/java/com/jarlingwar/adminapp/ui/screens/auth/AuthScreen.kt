@@ -8,6 +8,7 @@ import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.ActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -20,6 +21,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.Button
+import androidx.compose.material.ButtonDefaults
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Scaffold
 import androidx.compose.material.SnackbarHostState
@@ -32,11 +34,9 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
-import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
-import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
@@ -93,6 +93,7 @@ fun AuthScreen(
     val title = if (viewModel.screenType == AuthViewModel.Screen.AUTH) {
         if (pagerState.currentPage == 0) titles[0] else titles[1]
     } else ""
+
     Scaffold(
         snackbarHost = { MySnack(snackState) },
         topBar = { TopBar(title = title) }
@@ -110,10 +111,12 @@ fun AuthScreen(
 
     if (viewModel.error != null) {
         val error = viewModel.error!!
-        val message = if (error.resId > 0) stringResource(id = error.resId)
-        else error.message ?: ""
+        val message =
+            if (!error.message.isNullOrEmpty()) error.message
+            else if (error.resId > 0) stringResource(id = error.resId)
+            else null
         LaunchedEffect(error) {
-            snackState.showSnackbar(message)
+            message?.let { snackState.showSnackbar(message)}
         }
     }
 }
@@ -272,11 +275,16 @@ private fun GoogleButton(
     launcher: ManagedActivityResultLauncher<Intent, ActivityResult>?,
     viewModel: AuthViewModel?
 ) {
+    val context = LocalContext.current
     Button(modifier = Modifier
         .fillMaxWidth()
         .height(MaterialTheme.adminDimens.buttonHeight),
+        colors = ButtonDefaults.buttonColors(MaterialTheme.adminColors.backgroundPrimary),
         onClick = {
-            viewModel?.getSignInIntent()?.let { launcher?.launch(it) }
+            val googleAuth = viewModel?.getSignInIntent()
+            if (googleAuth != null) {
+                launcher?.launch(googleAuth)
+            } else { viewModel?.setupGoogleAuth(context) }
         }) {
         Image(
             painter = painterResource(id = R.drawable.ic_google),
@@ -287,7 +295,8 @@ private fun GoogleButton(
         )
         Text(
             text = stringResource(R.string.google_sign_in),
-            style = Type.Subtitle2
+            style = Type.Subtitle2,
+            color = MaterialTheme.adminColors.textPrimary
         )
     }
 }

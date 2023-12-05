@@ -14,6 +14,7 @@ import com.jarlingwar.adminapp.domain.models.ListingStatus
 import com.jarlingwar.adminapp.domain.models.RejectReason
 import com.jarlingwar.adminapp.domain.models.UserModel
 import com.jarlingwar.adminapp.utils.CustomError
+import com.jarlingwar.adminapp.utils.ReportHandler
 import com.jarlingwar.adminapp.utils.geo.GeoDecoder
 import com.jarlingwar.adminapp.utils.geo.geohash.GeoHash
 import com.jarlingwar.adminapp.utils.toUnknown
@@ -33,7 +34,9 @@ class ListingViewModel @Inject constructor(
     var listing by mutableStateOf(ListingModel())
     var listingUser by mutableStateOf<UserModel?>(null)
     var locationName by mutableStateOf("")
-    var success by mutableStateOf(false)
+    var isSuccess by mutableStateOf(false)
+    var isLoading by mutableStateOf(false)
+    var isDeleteSuccess by mutableStateOf(false)
     var error by mutableStateOf<CustomError?>(null)
 
     fun init(listing: ListingModel) {
@@ -41,56 +44,93 @@ class ListingViewModel @Inject constructor(
         viewModelScope.launch(Dispatchers.IO) {
             listingUser = userManager.getUserById(listing.userId).getOrNull()
             listingUser?.geoHash?.let { hash ->
-                val loc = GeoHash(hash).toLocation()
-                geoDecoder.decodeLocation(loc, object : GeoDecoder.ResultListener {
-                    override fun onLocationReady(address: Address) {
-                        locationName = address.adminArea
-                    }
-                })
+                if (hash.isNotEmpty()) {
+                    val loc = GeoHash(hash).toLocation()
+                    geoDecoder.decodeLocation(loc, object : GeoDecoder.ResultListener {
+                        override fun onLocationReady(address: Address) {
+                            locationName = address.adminArea
+                        }
+                    })
+                }
             }
         }
     }
 
     fun approve() {
-        success = false
+        isLoading = true
         val approvedListing = listing.copy(approved = true)
         viewModelScope.launch(Dispatchers.IO) {
             listingManager.saveListing(approvedListing)
-                .onSuccess { success = true }
-                .onFailure { error = it.toUnknown() }
+                .onSuccess {
+                    isSuccess = true
+                    isLoading = false
+                    listing = approvedListing
+                }
+                .onFailure {
+                    isLoading = false
+                    error = it.toUnknown()
+                }
         }
     }
 
     fun reject(reason: RejectReason) {
-        success = false
+        isLoading = true
+        val rejectReasonText = if (reason == RejectReason.CUSTOM) reason.text else reason.name
         val rejectedListing = listing.copy(
             approved = false,
-            rejectReason = reason.text,
+            rejectReason = rejectReasonText,
             status = ListingStatus.REJECTED
         )
         viewModelScope.launch(Dispatchers.IO) {
             listingManager.saveListing(rejectedListing)
-                .onSuccess { success = true }
-                .onFailure { error = it.toUnknown() }
+                .onSuccess {
+                    isSuccess = true
+                    isLoading = false
+                    listing = rejectedListing
+                    updateUserListings()
+                }
+                .onFailure {
+                    isLoading = false
+                    error = it.toUnknown()
+                }
         }
     }
 
     fun deleteListing() {
-        success = false
+        isLoading = true
         viewModelScope.launch(Dispatchers.IO) {
             listingManager.deleteListing(listing)
-                .onSuccess { success = true }
+                .onSuccess {
+                    isDeleteSuccess = true
+                    updateUserListings()
+                }
                 .onFailure { error = it.toUnknown() }
         }
     }
 
-    fun deleteAndBlockUser() {
-        success = false
+    fun deleteAllUserData() {
+        isLoading = true
         viewModelScope.launch(Dispatchers.IO) {
-            listingUser?.let { userManager.deleteUser(it).getOrNull() }
-            listingManager.deleteListing(listing)
-                .onSuccess { success = true }
-                .onFailure { error = it.toUnknown() }
+            if (listingUser != null) {
+                val listings = listingManager.getUserListings(listingUser!!).getOrNull()
+                if (!listings.isNullOrEmpty()) {
+                    listingManager.deleteListings(listings).getOrNull()
+                }
+                userManager.deleteUser(listingUser!!)
+                    .onSuccess { isDeleteSuccess = true }
+                    .onFailure { error = it.toUnknown() }
+            } else {
+                listingManager.deleteListing(listing)
+                    .onSuccess { isDeleteSuccess = true }
+                    .onFailure { error = it.toUnknown() }
+            }
+        }
+    }
+
+    private suspend fun updateUserListings() {
+        listingUser?.let { user ->
+            user.publishedListings -= 1
+            userManager.saveUser(user, false)
         }
     }
 }

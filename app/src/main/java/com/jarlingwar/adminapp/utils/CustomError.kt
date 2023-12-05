@@ -19,6 +19,9 @@ sealed class CustomError(message: String = "", throwable: Throwable = Throwable(
         val LIMIT_REACHED = GeneralError.ListingLimitReached()
         val USER_NOT_FOUND = GeneralError.UserNotFound()
         val AUTH_REQUIRED = AuthError.AuthRequired()
+        fun newError(message: String): CustomError {
+            return GeneralError.Unknown(message = message)
+        }
         fun getResIdByErrorType(error: Throwable): Int {
             val errorMessage = error.message ?: ""
             return when {

@@ -25,6 +25,7 @@ import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
@@ -33,6 +34,7 @@ import coil.compose.rememberAsyncImagePainter
 import coil.request.ImageRequest
 import coil.size.Size
 import com.jarlingwar.adminapp.R
+import com.jarlingwar.adminapp.ui.theme.FixedDimens
 import com.jarlingwar.adminapp.ui.theme.adminColors
 import com.jarlingwar.adminapp.ui.theme.adminDimens
 import com.mxalbert.zoomable.Zoomable
@@ -42,7 +44,7 @@ fun MyImage(
     modifier: Modifier,
     imgUrl: String,
     contentScale: ContentScale = ContentScale.Fit,
-    shape: RoundedCornerShape = RoundedCornerShape(MaterialTheme.adminDimens.cornerRadius)
+    shape: RoundedCornerShape = RoundedCornerShape(FixedDimens.cornerRadius)
 ) {
     val placeholder = R.drawable.bg_image_placeholder
     Image(
@@ -128,9 +130,9 @@ fun ImageDialog(
 }
 
 @Composable
-fun MyIcon(iconRes: Int, tint: Color = MaterialTheme.adminColors.fillAltPrimary) {
+fun MyIcon(iconRes: Int, tint: Color = MaterialTheme.adminColors.fillAltPrimary, paddingStart: Dp = 0.dp) {
     Icon(
-        modifier = Modifier.size(15.dp),
+        modifier = Modifier.padding(start = paddingStart).size(15.dp),
         painter = painterResource(id = iconRes),
         tint = tint,
         contentDescription = null

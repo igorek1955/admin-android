@@ -1,5 +1,6 @@
 package com.jarlingwar.adminapp.utils
 
+import android.content.Intent
 import androidx.activity.ComponentActivity
 import androidx.lifecycle.lifecycleScope
 import com.google.gson.GsonBuilder
@@ -21,4 +22,11 @@ fun Double.round(decimalPlaces: Int = 2): String {
 fun <T> T.prettyPrint(): String {
     val gsonBuilder = GsonBuilder().setPrettyPrinting().create()
     return gsonBuilder.toJson(this)
+}
+
+fun Intent.clear() {
+    action = null
+    data = null
+    replaceExtras(null)
+    flags = 0
 }

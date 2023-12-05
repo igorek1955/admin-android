@@ -61,6 +61,11 @@ class ReportHandler {
             Log.i(TAG, content)
         }
 
+        fun logEvent(e: Throwable) {
+            val msg = "${e.message} + ${e.printStackTrace()}"
+            Log.i(TAG, msg)
+        }
+
         @JvmStatic
         fun setUserProperty(propertyKey: String, value: String) {
             gAnalytics?.setUserProperty(propertyKey, value)

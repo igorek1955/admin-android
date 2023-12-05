@@ -14,7 +14,7 @@ val MaterialTheme.adminColors: ColorPalette
 val MaterialTheme.adminDimens: Dimens
     @Composable
     @ReadOnlyComposable
-    get() = Dimens()
+    get() = PhoneDimens
 
 
 @Composable

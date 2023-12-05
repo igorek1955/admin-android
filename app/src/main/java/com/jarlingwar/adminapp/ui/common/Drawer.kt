@@ -1,10 +1,12 @@
 package com.jarlingwar.adminapp.ui.common
 
+import android.annotation.SuppressLint
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
@@ -16,8 +18,11 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.MaterialTheme
+import androidx.compose.material.Scaffold
 import androidx.compose.material.Text
+import androidx.compose.material.rememberScaffoldState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -30,10 +35,12 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.jarlingwar.adminapp.BuildConfig
 import com.jarlingwar.adminapp.R
+import com.jarlingwar.adminapp.domain.models.UserModel
 import com.jarlingwar.adminapp.navigation.Destinations
 import com.jarlingwar.adminapp.ui.theme.AdminAppTheme
 import com.jarlingwar.adminapp.ui.theme.Type
 import com.jarlingwar.adminapp.ui.theme.adminColors
+import kotlinx.coroutines.launch
 
 enum class DrawerItem(val titleId: Int, val iconRes: Int, val route: String) {
     PENDING_LISTINGS(
@@ -46,15 +53,10 @@ enum class DrawerItem(val titleId: Int, val iconRes: Int, val route: String) {
         R.drawable.ic_published_listings,
         Destinations.PublishedListings.route
     ),
+    SEARCH(R.string.search, R.drawable.ic_search, Destinations.Search.route),
     USERS(R.string.users, R.drawable.ic_users, Destinations.Users.route),
-    REPORTED_USERS(
-        R.string.reported_users,
-        R.drawable.ic_reported_users,
-        Destinations.ReportedUsers.route
-    ),
     REVIEWS(R.string.reviews, R.drawable.ic_pen, Destinations.Reviews.route),
-    SEARCH_USER(R.string.search_users, R.drawable.ic_search_people, Destinations.UserSearch.route),
-    SEARCH_LISTING(R.string.search_listings, R.drawable.ic_search, Destinations.ListingSearch.route)
+    REPORTS(R.string.reports, R.drawable.ic_report, Destinations.Reports.route)
 }
 
 @Composable
@@ -94,7 +96,7 @@ private fun DrawerHeader(email: String, imgUrl: String) {
                     .padding(horizontal = 10.dp),
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                AdminIcon(size = 30.dp)
+                AppIcon(size = 30.dp)
                 Spacer(modifier = Modifier.width(5.dp))
                 Text(
                     text = stringResource(id = R.string.app_name),
@@ -122,34 +124,77 @@ private fun DrawerBody(selectedItem: DrawerItem, onNavigate: (String) -> Unit) {
                 val isSelected = selectedItem == item
                 Row(Modifier
                     .fillMaxWidth()
+                    .background(if (isSelected) MaterialTheme.adminColors.primary else MaterialTheme.adminColors.backgroundPrimary)
                     .clickable { onNavigate(item.route) }
                     .padding(10.dp),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     Image(
                         painter = painterResource(id = item.iconRes),
-                        colorFilter = ColorFilter.tint(if (isSelected) MaterialTheme.adminColors.primary else MaterialTheme.adminColors.fillAltPrimary),
+                        colorFilter = ColorFilter.tint(if (isSelected) Color.White else MaterialTheme.adminColors.fillAltPrimary),
                         contentDescription = null
                     )
                     Spacer(Modifier.width(10.dp))
                     Text(
                         text = stringResource(id = item.titleId),
                         style = Type.Subtitle2,
-                        color = MaterialTheme.adminColors.textPrimary
+                        color = if (isSelected) MaterialTheme.adminColors.textAltPrimary else MaterialTheme.adminColors.textPrimary
                     )
                 }
             }
         }
         Text(
             text = "ver:${BuildConfig.VERSION_NAME}",
-            modifier = Modifier.align(Alignment.BottomEnd).padding(5.dp),
+            modifier = Modifier
+                .align(Alignment.BottomEnd)
+                .padding(5.dp),
             color = MaterialTheme.adminColors.textSecondary
         )
     }
 }
 
+@SuppressLint("UnusedMaterialScaffoldPaddingParameter")
 @Composable
-fun AdminIcon(size: Dp) {
+fun DrawerScaffold(
+    currentUser: UserModel?,
+    currentDestination: DrawerItem,
+    onNavigate: (String) -> Unit,
+    content: @Composable (PaddingValues) -> Unit
+) {
+    val scaffoldState = rememberScaffoldState()
+    val scope = rememberCoroutineScope()
+    Scaffold(
+        scaffoldState = scaffoldState,
+        topBar = {
+            DrawerTopBar(stringResource(id = currentDestination.titleId)) {
+                scope.launch {
+                    scaffoldState.drawerState.open()
+                }
+            }
+        },
+        drawerGesturesEnabled = scaffoldState.drawerState.isOpen,
+        drawerContent = {
+            Drawer(
+                email = currentUser?.email ?: "",
+                imgUrl = currentUser?.profileImageUrl ?: "",
+                selectedItem = currentDestination,
+                onNavigate = {
+                    if (currentDestination.route != it) {
+                        onNavigate(it)
+                    } else {
+                        scope.launch {
+                            scaffoldState.drawerState.close()
+                        }
+                    }
+                }
+            )
+        },
+        content = content
+    )
+}
+
+@Composable
+private fun AppIcon(size: Dp) {
     Box(
         modifier = Modifier
             .size(size)

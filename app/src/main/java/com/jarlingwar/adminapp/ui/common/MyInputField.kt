@@ -108,6 +108,7 @@ fun MyPasswordField(
 
 @Composable
 private fun myTextFieldDefaults() = TextFieldDefaults.textFieldColors(
+    textColor = MaterialTheme.adminColors.textPrimary,
     backgroundColor = MaterialTheme.adminColors.backgroundPrimary,
     cursorColor = MaterialTheme.adminColors.primary,
     focusedIndicatorColor = MaterialTheme.adminColors.primary,
@@ -116,7 +117,7 @@ private fun myTextFieldDefaults() = TextFieldDefaults.textFieldColors(
 )
 
 @Composable
-private fun InputFieldIcon(modifier: Modifier = Modifier, iconRes: Int) {
+fun InputFieldIcon(modifier: Modifier = Modifier, iconRes: Int) {
     Image(
         modifier = modifier.size(24.dp),
         painter = painterResource(id = iconRes),

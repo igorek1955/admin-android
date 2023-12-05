@@ -3,7 +3,6 @@ package com.jarlingwar.adminapp.ui.view_models
 import android.app.Application
 import android.content.Context
 import android.content.Intent
-import android.util.Log
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -16,7 +15,6 @@ import com.jarlingwar.adminapp.R
 import com.jarlingwar.adminapp.domain.UserManager
 import com.jarlingwar.adminapp.utils.CustomError
 import com.jarlingwar.adminapp.utils.RemoteConfig
-import com.jarlingwar.adminapp.utils.ReportHandler
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.collectLatest
@@ -101,11 +99,9 @@ class AuthViewModel @Inject constructor(
             userManager.registerUser(email, password, displayName) {
                 screenType = Screen.REGISTRATION_SUCCESS
                 isLoading = false
-                ReportHandler.logEvent("registerNewUser success")
             }.onFailure {
                 error = CustomError.AuthError.Register(it)
                 isLoading = false
-                ReportHandler.logEvent("registerNewUser error:${it.message}")
             }
         }
     }
@@ -113,8 +109,12 @@ class AuthViewModel @Inject constructor(
     fun getSignInIntent() = googleSignInClient?.signInIntent
 
     fun setupGoogleAuth(context: Context) {
+        if (googleSignInClient != null) return
         val clientId = remoteConfig.oauthClientId
-        if (googleSignInClient != null || clientId.isEmpty()) return
+        if (clientId.isEmpty()) {
+            error = CustomError.newError("empty oauthClientId")
+            return
+        }
         val googleSignInOptions = GoogleSignInOptions.Builder(
             GoogleSignInOptions.DEFAULT_SIGN_IN
         ).requestIdToken(clientId)
@@ -125,9 +125,16 @@ class AuthViewModel @Inject constructor(
 
     fun resetPassword(email: String) {
         viewModelScope.launch(Dispatchers.IO) {
+            error = null
+            isLoading = true
             userManager.resetPassword(email)
-                .onSuccess { screenType = Screen.RESET_SUCCESS }
-                .onFailure { error = CustomError.AuthError.Reset(it.message ?: "") }
+                .onSuccess {
+                    isLoading = false
+                    screenType = Screen.RESET_SUCCESS
+                }.onFailure {
+                    isLoading = false
+                    error = CustomError.AuthError.Reset(it.message ?: "")
+                }
         }
     }
 
@@ -145,8 +152,8 @@ class AuthViewModel @Inject constructor(
                     it?.let { user -> userManager.initData(user = user) }
                     isLoading = false
                 }.onFailure {
-                    error = CustomError.AuthError.Login(it)
                     isLoading = false
+                    error = CustomError.AuthError.Login(it)
                 }
         }
     }

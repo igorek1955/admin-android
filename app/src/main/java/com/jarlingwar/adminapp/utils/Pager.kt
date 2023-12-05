@@ -14,13 +14,13 @@ abstract class AbstractPager<T> {
     abstract fun onSuccess(result: List<T?>)
     abstract fun onLoadNext()
     open fun onFirstLoad() { }
-    abstract fun onNoResults()
+    open fun onNoResults() {}
 }
 
 class Pager<T>(
     private val scope: CoroutineScope,
     private val pager: AbstractPager<T>,
-    private val pagingFlow: (Flow<Int>) -> Flow<List<T?>>
+    var pagingFlow: (Flow<Int>) -> Flow<List<T?>>
     ) {
     private val pagingReference = MutableStateFlow(0)
     private var pagingJob: Job? = null
@@ -28,14 +28,12 @@ class Pager<T>(
 
     fun reload() {
         pager.onFirstLoad()
-        if (pagingJob != null) {
-            pagingJob?.cancel()
-            pagingJob = null
-        }
+        stop()
         pagingJob = scope.launch(Dispatchers.IO) {
             pagingFlow.invoke(pagingReference)
                 .catch { pager.onError(it) }
                 .collect {
+                    ReportHandler.logEvent("Pager results :$it")
                   if (it.isEmpty()) {
                       pager.onNoResults()
                   } else {
@@ -43,6 +41,13 @@ class Pager<T>(
                       pager.onSuccess(it)
                   }
             }
+        }
+    }
+
+    fun stop() {
+        if (pagingJob != null) {
+            pagingJob?.cancel()
+            pagingJob = null
         }
     }
 

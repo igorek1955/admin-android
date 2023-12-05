@@ -8,11 +8,15 @@ fun getTimeTitle(): String {
     return SimpleDateFormat("ssmmhhddMMyyyy", Locale.ENGLISH).format(Date())
 }
 
-fun getTimeHyphen(time: Long): String {
+fun getDateHyphen(time: Long): String {
     return SimpleDateFormat("dd-MMM-yyyy", getCurrentLocale()).format(Date(time))
 }
 
-fun getTimeListing(time: Long): String {
+fun getDateTime(time: Long): String {
+    return SimpleDateFormat("dd-MMM-yyyy hh:mm", getCurrentLocale()).format(Date(time))
+}
+
+fun getDateListing(time: Long): String {
     return SimpleDateFormat("dd/MMM/yyyy", getCurrentLocale()).format(Date(time))
 }
 

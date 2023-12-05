@@ -9,8 +9,8 @@ import androidx.lifecycle.viewModelScope
 import com.jarlingwar.adminapp.domain.ListingManager
 import com.jarlingwar.adminapp.domain.UserManager
 import com.jarlingwar.adminapp.domain.models.ListingModel
-import com.jarlingwar.adminapp.domain.models.LocationModel
-import com.jarlingwar.adminapp.domain.models.QueryParams
+import com.jarlingwar.adminapp.domain.models.ListingStatus
+import com.jarlingwar.adminapp.domain.models.ListingsQueryParams
 import com.jarlingwar.adminapp.domain.models.SortOrder
 import com.jarlingwar.adminapp.domain.models.UserModel
 import com.jarlingwar.adminapp.utils.AbstractPager
@@ -18,7 +18,6 @@ import com.jarlingwar.adminapp.utils.CustomError
 import com.jarlingwar.adminapp.utils.Pager
 import com.jarlingwar.adminapp.utils.ReportHandler
 import com.jarlingwar.adminapp.utils.geo.CountryInfo
-import com.jarlingwar.adminapp.utils.geo.capitalized
 import com.jarlingwar.adminapp.utils.toUnknown
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
@@ -31,7 +30,7 @@ import javax.inject.Inject
 class ListingsViewModel @Inject constructor(
     application: Application,
     private val listingManager: ListingManager,
-    private val userManager: UserManager
+    private val userManager: UserManager,
 ) : AndroidViewModel(application) {
 
     var listings by mutableStateOf<List<ListingModel>>(emptyList())
@@ -41,8 +40,8 @@ class ListingsViewModel @Inject constructor(
     var isLoading by mutableStateOf(false)
     var isLoadingNext by mutableStateOf(false)
     var isRefreshing by mutableStateOf(false)
-    var isNoResults by mutableStateOf(false)
     var currentUser by mutableStateOf<UserModel?>(null)
+    var logs by mutableStateOf("")
     private var pager: Pager<ListingModel>? = null
 
     fun init(isPending: Boolean) {
@@ -52,11 +51,33 @@ class ListingsViewModel @Inject constructor(
         viewModelScope.launch(Dispatchers.IO) {
             userManager.userInfoFlow.collectLatest { currentUser = it }
         }
+        if (isPending) {
+            checkStaleListings()
+        }
+    }
+
+    private fun checkStaleListings() {
+        viewModelScope.launch(Dispatchers.IO) {
+            val freshTime = 5259600000 //2 months
+            listingManager.getPubListingsByDate(System.currentTimeMillis() - freshTime)
+                .onSuccess { listings ->
+                    if (listings.isNotEmpty()) {
+                        listings.forEach { listing ->
+                            listing.approved = false
+                            listing.status = ListingStatus.UNPUBLISHED
+                        }
+                        listingManager.saveListings(listings)
+                            .onSuccess { logs = "Successfully unpublished ${listings.size} listings" }
+                            .onFailure { logs = "Can't unpublish ${listings.size} listings, reason: ${it.message}" }
+                    }
+                }
+                .onFailure { logs = "Can't unpublish listings, reason: ${it.message}" }
+        }
     }
 
     fun updateCountry(pos: Int) {
         CountryInfo.values().getOrNull(pos)?.let { newCountry ->
-            val updatedParams = QueryParams(country = newCountry)
+            val updatedParams = ListingsQueryParams(country = newCountry)
             listingManager.updateParams(updatedParams)
             refresh()
         }
@@ -99,7 +120,6 @@ class ListingsViewModel @Inject constructor(
                 }
 
                 override fun onSuccess(result: List<ListingModel?>) {
-                    isNoResults = false
                     isLoading = false
                     isLoadingNext = false
                     isRefreshing = false
@@ -107,7 +127,10 @@ class ListingsViewModel @Inject constructor(
                 }
 
                 override fun onNoResults() {
-                    isNoResults = true
+                    isLoading = false
+                    isLoadingNext = false
+                    isRefreshing = false
+                    listings = emptyList()
                 }
             }, pagingFlow = {
                 if (isPendingListings) listingManager.getPendingListingsPaging(it)

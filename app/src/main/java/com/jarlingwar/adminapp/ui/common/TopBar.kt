@@ -2,6 +2,8 @@ package com.jarlingwar.adminapp.ui.common
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxScope
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.IconButton
@@ -23,31 +25,38 @@ import com.jarlingwar.adminapp.ui.theme.adminColors
 @Composable
 fun TopBar(
     title: String,
-    onBack: (() -> Unit)? = null
+    onBack: (() -> Unit)? = null,
+    endContent: @Composable BoxScope.() -> Unit = { },
 ) {
     TopAppBar {
         Box(modifier = Modifier.fillMaxSize()) {
-            onBack?.let {
-                IconButton(
-                    onClick = { onBack() },
-                    Modifier
-                        .align(Alignment.CenterStart)
-                        .padding(4.dp)
-                ) {
-                    Image(
-                        painter = painterResource(id = R.drawable.ic_arrow_back),
-                        contentDescription = "back",
-                        alignment = Alignment.Center,
-                        colorFilter = ColorFilter.tint(MaterialTheme.adminColors.fillPrimary)
-                    )
+            Row(
+                Modifier.fillMaxSize(),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                onBack?.let {
+                    IconButton(
+                        onClick = { onBack() },
+                        Modifier.padding(4.dp)
+                    ) {
+                        Image(
+                            painter = painterResource(id = R.drawable.ic_arrow_back),
+                            contentDescription = "back",
+                            alignment = Alignment.Center,
+                            colorFilter = ColorFilter.tint(MaterialTheme.adminColors.fillPrimary)
+                        )
+                    }
                 }
+                Text(
+                    text = title,
+                    modifier = Modifier.padding(start = 5.dp),
+                    style = Type.Subtitle2,
+                    color = MaterialTheme.adminColors.textPrimary
+                )
             }
-            Text(
-                text = title,
-                modifier = Modifier.align(Alignment.Center),
-                style = Type.Subtitle2,
-                color = MaterialTheme.adminColors.textPrimary
-            )
+            Box(modifier = Modifier.align(Alignment.CenterEnd)) {
+                endContent()
+            }
         }
     }
 }
@@ -84,7 +93,9 @@ fun DrawerTopBar(title: String, onDrawerTap: () -> Unit) {
 @Composable
 fun TopBarPreview() {
     AdminAppTheme {
-        TopBar(title = "Registration") { }
+        TopBar(title = "Registration", onBack = {}, endContent = {
+            Image(painter = painterResource(id = R.drawable.ic_options), contentDescription = null)
+        })
     }
 }
 
