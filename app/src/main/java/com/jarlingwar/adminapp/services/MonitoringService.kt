@@ -124,7 +124,7 @@ class MonitoringService : Service() {
         coroutineScope.launch {
             chatRepo.getNotificationQueueAsFlow()
                 .collectLatest { notifications ->
-                    notifications.forEach { notification ->
+                    notifications.distinct().forEach { notification ->
                         sendNotification(notification)
                         delay(20)
                     }
