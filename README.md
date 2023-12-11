@@ -1,5 +1,5 @@
 # Admin App Jetpack Compose for Android
-[![License: GPL-3.0](https://img.shields.io/badge/License-GPL%203.0-blue.svg)](https://www.gnu.org/licenses/gpl.html) [![Releases](https://img.shields.io/github/v/release/jarlingvar/admin-android.svg)](https://github.com/jarlingvar/wanderjunk-pub/releases/latest)
+[![License: GPL-3.0](https://img.shields.io/badge/License-GPL%203.0-blue.svg)](https://www.gnu.org/licenses/gpl.html) [![Releases](https://img.shields.io/github/v/release/jarlingvar/admin-android.svg)](https://github.com/jarlingvar/admin-android/releases/latest)
 
 Straightforward listings application for travelers without any bloat.
 
