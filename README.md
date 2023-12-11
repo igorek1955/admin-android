@@ -36,7 +36,7 @@ Straightforward listings application for travelers without any bloat.
 ## Screenshots
 |                      Main Screen                      |
 |:-----------------------------------------------------:|
-| <img src="/assets/images/admin-anim.png" width="412"> |
+| <img src="/assets/images/admin-anim.gif" width="412"> |
 
 ## Related Apps
 - [**WanderJunk App**](https://github.com/jarlingvar/wanderjunk-pub)
