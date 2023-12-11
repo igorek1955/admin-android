@@ -9,6 +9,10 @@ plugins {
     id 'dagger.hilt.android.plugin'
 }
 
+def keyPropertiesFile = rootProject.file("${project.rootDir}/secure/key.properties")
+def keyProperties = new Properties()
+keyProperties.load(new FileInputStream(keyPropertiesFile))
+
 android {
     namespace 'com.jarlingwar.adminapp'
     compileSdk 34
@@ -26,8 +30,18 @@ android {
         }
     }
 
+    signingConfigs {
+        release {
+            storeFile file(keyProperties['WANDERJUNK_KEYSTORE_FILE'])
+            storePassword keyProperties['WANDERJUNK_KEY_PASS']
+            keyAlias keyProperties['WANDERJUNK_KEY_ALIAS']
+            keyPassword keyProperties['WANDERJUNK_KEYSTORE_PASS']
+        }
+    }
+
     buildTypes {
         release {
+            signingConfig signingConfigs.release
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
