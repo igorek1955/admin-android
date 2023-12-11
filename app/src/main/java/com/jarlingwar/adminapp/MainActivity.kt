@@ -1,6 +1,7 @@
 package com.jarlingwar.adminapp
 
 import android.app.ActivityManager
+import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import androidx.activity.ComponentActivity
@@ -60,21 +61,15 @@ class MainActivity : ComponentActivity() {
     }
 
     private fun setupService() {
-        if (!isMonitoringServiceRunning() && mainViewModel.isAuthRequired.value == false) {
+        if (!isServiceRunning2<MonitoringService>() && mainViewModel.isAuthRequired.value == false) {
             val intent = Intent(this, MonitoringService::class.java)
             startForegroundService(intent)
         }
     }
 
-    private fun isMonitoringServiceRunning(): Boolean {
-        val activityManager = getSystemService(ACTIVITY_SERVICE) as ActivityManager
-        for (process in activityManager.runningAppProcesses) {
-            if (process.processName == applicationContext.packageName) {
-                for (serviceName in process.pkgList) {
-                    if (serviceName == MonitoringService::class.java.name) return true
-                }
-            }
-        }
-        return false
-    }
+    @Suppress("DEPRECATION") // Deprecated for third party Services.
+    private inline fun <reified T> Context.isServiceRunning2() =
+        (getSystemService(Context.ACTIVITY_SERVICE) as ActivityManager)
+            .getRunningServices(Integer.MAX_VALUE)
+            .any { it.service.className == T::class.java.name }
 }
